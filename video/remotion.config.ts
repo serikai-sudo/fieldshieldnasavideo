@@ -10,6 +10,8 @@ Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.setCodec('h264');
 Config.setPixelFormat('yuv420p');
+// Limited-range BT.709 tagging, so the file reads as plain yuv420p everywhere (not the JPEG-range yuvj420p).
+Config.setColorSpace('bt709');
 
 const browserExecutable = process.env['REMOTION_BROWSER_EXECUTABLE'];
 if (browserExecutable !== undefined && browserExecutable !== '') {
