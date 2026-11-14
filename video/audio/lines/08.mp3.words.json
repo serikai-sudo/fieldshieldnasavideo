@@ -1,47 +1,37 @@
 [
  {
+  "word": "Over",
+  "start": 0,
+  "end": 0.198
+ },
+ {
   "word": "33 years",
-  "start": 0.1,
-  "end": 0.95
- },
- {
-  "word": "back-tested",
-  "start": 0.963,
-  "end": 1.688
- },
- {
-  "word": "with",
-  "start": 1.85,
-  "end": 1.988
- },
- {
-  "word": "heat",
-  "start": 2.0,
-  "end": 2.388
+  "start": 0.21,
+  "end": 1.198
  },
  {
   "word": "it",
-  "start": 2.6,
-  "end": 2.663
+  "start": 1.21,
+  "end": 1.269
  },
  {
   "word": "holds",
-  "start": 2.675,
-  "end": 3.0
+  "start": 1.269,
+  "end": 1.757
  },
  {
   "word": "out",
-  "start": 3.013,
-  "end": 3.15
+  "start": 1.98,
+  "end": 2.222
  },
  {
   "word": "of",
-  "start": 3.163,
-  "end": 3.238
+  "start": 2.234,
+  "end": 2.371
  },
  {
   "word": "sample",
-  "start": 3.25,
-  "end": 3.812
+  "start": 2.384,
+  "end": 3.009
  }
 ]

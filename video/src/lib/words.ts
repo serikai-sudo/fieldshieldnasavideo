@@ -7,11 +7,14 @@ function normalise(word: string): string {
 }
 
 /**
- * The composition frame of the first word of LINES[line] that starts with `word`, or `fallback` when the timings or the
- * word are missing. `lead` frames earlier: the picture lands a hair before the word, as the eye reads ahead of the ear.
+ * The composition frame of a word of LINES[line] that starts with `word` — the first such word, or the last with
+ * `pick: 'last'` — or `fallback` when the timings or the word are missing. `lead` frames earlier: the picture lands a
+ * hair before the word, as the eye reads ahead of the ear.
  */
-export function wordFrame(assets: Assets, line: number, word: string, fallback: number, lead = 2): number {
-  const spoken = assets.words?.find((entry) => entry.line === line)?.words;
-  const hit = spoken?.find((entry) => normalise(entry.word).startsWith(word));
+export function wordFrame(assets: Assets, line: number, word: string, fallback: number, lead = 2, pick: 'first' | 'last' = 'first'): number {
+  const spoken = assets.words?.find((entry) => entry.line === line)?.words ?? [];
+  const wanted = normalise(word);
+  const hits = spoken.filter((entry) => normalise(entry.word).startsWith(wanted));
+  const hit = pick === 'last' ? hits[hits.length - 1] : hits[0];
   return hit === undefined ? fallback : Math.round(hit.at * FPS) - lead;
 }

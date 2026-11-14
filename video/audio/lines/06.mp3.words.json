@@ -1,42 +1,47 @@
 [
  {
-  "word": "Water",
-  "start": 0.1,
-  "end": 0.425
+  "word": "The",
+  "start": 0,
+  "end": 0.033
  },
  {
-  "word": "balance",
-  "start": 0.438,
-  "end": 0.963
+  "word": "calculator",
+  "start": 0.045,
+  "end": 0.533
  },
  {
-  "word": "and",
-  "start": 1.137,
-  "end": 1.275
+  "word": "shows",
+  "start": 0.545,
+  "end": 0.962
  },
  {
-  "word": "heat",
-  "start": 1.288,
-  "end": 1.538
+  "word": "what",
+  "start": 0.973,
+  "end": 1.14
  },
  {
-  "word": "with",
-  "start": 1.55,
-  "end": 1.675
+  "word": "late",
+  "start": 1.152,
+  "end": 1.39
  },
  {
-  "word": "drought",
-  "start": 1.688,
-  "end": 1.975
+  "word": "sowing",
+  "start": 1.402,
+  "end": 1.7
  },
  {
-  "word": "at",
-  "start": 1.988,
-  "end": 2.075
+  "word": "costs",
+  "start": 1.712,
+  "end": 2.247
  },
  {
-  "word": "flowering",
-  "start": 2.087,
-  "end": 2.763
+  "word": "in",
+  "start": 2.378,
+  "end": 2.483
+ },
+ {
+  "word": "tenge",
+  "start": 2.495,
+  "end": 3.133
  }
 ]

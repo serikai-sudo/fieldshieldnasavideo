@@ -1,37 +1,52 @@
 [
  {
-  "word": "We",
-  "start": 0.1,
-  "end": 0.275
+  "word": "Does",
+  "start": 0,
+  "end": 0.117
  },
  {
-  "word": "replayed",
-  "start": 0.287,
-  "end": 0.712
+  "word": "it",
+  "start": 0.129,
+  "end": 0.224
+ },
+ {
+  "word": "work",
+  "start": 0.236,
+  "end": 0.701
+ },
+ {
+  "word": "In",
+  "start": 1.058,
+  "end": 1.201
  },
  {
   "word": "2012",
-  "start": 0.725,
-  "end": 1.7
+  "start": 1.213,
+  "end": 1.82
  },
  {
-  "word": "high",
-  "start": 1.9,
-  "end": 2.062
+  "word": "it",
+  "start": 1.832,
+  "end": 1.915
  },
  {
-  "word": "caution",
-  "start": 2.075,
-  "end": 2.513
+  "word": "warned",
+  "start": 1.915,
+  "end": 2.332
+ },
+ {
+  "word": "55 days",
+  "start": 2.471,
+  "end": 3.434
  },
  {
   "word": "before",
-  "start": 2.525,
-  "end": 2.837
+  "start": 3.434,
+  "end": 3.821
  },
  {
   "word": "harvest",
-  "start": 2.85,
-  "end": 3.5
+  "start": 3.833,
+  "end": 4.446
  }
 ]

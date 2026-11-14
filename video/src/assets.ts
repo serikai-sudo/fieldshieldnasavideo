@@ -4,9 +4,11 @@
  */
 import { staticFile } from 'remotion';
 
-/** A logged moment of a recording: seconds into the clip, or a click (seconds + output pixels). */
-/** A moment of a clip in seconds, or a moment at a point of the frame (and, for a sentence, its width). */
-export type ClipEvent = number | { readonly sec: number; readonly x: number; readonly y: number; readonly w?: number };
+/**
+ * A logged moment of a recording: seconds into the clip, or a moment at a point of the 1920×1080 frame (a click, or the
+ * centre of an element with its width and height).
+ */
+export type ClipEvent = number | { readonly sec: number; readonly x: number; readonly y: number; readonly w?: number; readonly h?: number };
 
 export type ClipInfo = {
   readonly exists: boolean;

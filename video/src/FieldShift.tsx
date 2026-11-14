@@ -11,13 +11,14 @@ import { Captions } from './components/Captions';
 import { Tags } from './components/Tags';
 import { WhipShell, WipeBars } from './components/Whip';
 import { ensureFonts } from './fonts';
+import { wordFrame } from './lib/words';
 import { Scene02Problem } from './scenes/Scene02Problem';
 import { SceneBacktest } from './scenes/SceneBacktest';
-import { SceneClip, SowBand } from './scenes/SceneClip';
+import { SceneBlind } from './scenes/SceneBlind';
+import { QuestionInsert, SceneClip, SowBand } from './scenes/SceneClip';
 import { SceneClose } from './scenes/SceneClose';
-import { SceneInside } from './scenes/SceneInside';
 import { SceneIntro } from './scenes/SceneIntro';
-import { HAZARDS_LINE_INDEX, TEXT, scene } from './script';
+import { PROOF_LINE_INDEX, TEXT, scene } from './script';
 import { fonts, theme } from './theme';
 
 export type FieldShiftProps = { readonly assets: Assets };
@@ -43,22 +44,26 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
       </WhipShell>
     </Series.Sequence>
   );
+  // The band lands on "safest"; the question card leaves as the voice moves on to "In 2012".
+  const bandAt = wordFrame(assets, 4, 'safest', scene('sowing').from + 48) - scene('sowing').from;
+  const questionUntil = wordFrame(assets, PROOF_LINE_INDEX, 'in', scene('proof').from + 30) - scene('proof').from;
   return (
     <AbsoluteFill style={{ backgroundColor: theme.paper, color: theme.ink, fontFamily: fonts.body }}>
       <Series>
         {shell('intro', <SceneIntro assets={assets} />, { inFrames: 0 })}
-        {shell('problem', <Scene02Problem />)}
+        {shell('problem', <Scene02Problem assets={assets} />)}
+        {shell('blind', <SceneBlind assets={assets} />)}
         {shell(
-          'demoA',
-          <SceneClip assets={assets} cut="demoA" placeholder={TEXT.demoA.placeholder}>
-            <Tags assets={assets} sceneId="demoA" tags={TEXT.demoA.tags} top={118} side={230} />
+          'click',
+          <SceneClip assets={assets} cut="click" placeholder={TEXT.click.placeholder}>
+            <Tags assets={assets} sceneId="click" tags={TEXT.click.tags} top={118} side={230} />
           </SceneClip>,
         )}
         {shell(
-          'demoB',
-          <SceneClip assets={assets} cut="demoB" placeholder={TEXT.demoB.placeholder}>
-            <SowBand text={TEXT.demoB.highlight} from={6} />
-            <Tags assets={assets} sceneId="demoB" tags={TEXT.demoB.tags} top={212} side={60} />
+          'sowing',
+          <SceneClip assets={assets} cut="sowing" placeholder={TEXT.sowing.placeholder}>
+            <SowBand text={TEXT.sowing.highlight} from={bandAt} />
+            <Tags assets={assets} sceneId="sowing" tags={TEXT.sowing.tags} top={212} side={60} />
           </SceneClip>,
         )}
         {shell(
@@ -67,11 +72,10 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
             <Tags assets={assets} sceneId="money" tags={TEXT.money.tags} top={300} side={70} />
           </SceneClip>,
         )}
-        {shell('hazards', <SceneInside assets={assets} sceneId="hazards" lineIndex={HAZARDS_LINE_INDEX} title={TEXT.hazards.title} reveals={TEXT.hazards.reveals} />)}
         {shell(
-          'replay',
-          <SceneClip assets={assets} cut="replay" placeholder={TEXT.replay.placeholder}>
-            <Tags assets={assets} sceneId="replay" tags={TEXT.replay.tags} top={140} side={60} />
+          'proof',
+          <SceneClip assets={assets} cut="proof" placeholder={TEXT.proof.placeholder}>
+            <QuestionInsert text={TEXT.proof.question} until={questionUntil} />
           </SceneClip>,
         )}
         {shell('backtest', <SceneBacktest assets={assets} />)}
@@ -79,7 +83,7 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
       </Series>
       <WipeBars />
       {assets.voiceover && <Audio src={staticFile(VOICEOVER_FILE)} />}
-      <Captions />
+      <Captions assets={assets} />
     </AbsoluteFill>
   );
 };

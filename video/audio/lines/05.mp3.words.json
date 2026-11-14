@@ -1,42 +1,42 @@
 [
  {
-  "word": "The",
-  "start": 0.1,
-  "end": 0.238
+  "word": "Then",
+  "start": 0,
+  "end": 0.396
  },
  {
-  "word": "calculator",
-  "start": 0.25,
-  "end": 0.925
+  "word": "for",
+  "start": 0.539,
+  "end": 0.741
  },
  {
-  "word": "turns",
-  "start": 0.938,
-  "end": 1.25
+  "word": "eight",
+  "start": 0.813,
+  "end": 0.98
  },
  {
-  "word": "timing",
-  "start": 1.262,
-  "end": 1.6
+  "word": "crops",
+  "start": 0.992,
+  "end": 1.503
  },
  {
-  "word": "into",
-  "start": 1.613,
-  "end": 1.8
+  "word": "the",
+  "start": 1.635,
+  "end": 1.679
  },
  {
-  "word": "money",
-  "start": 1.812,
-  "end": 2.237
+  "word": "safest",
+  "start": 1.692,
+  "end": 2.417
  },
  {
-  "word": "in",
-  "start": 2.388,
-  "end": 2.513
+  "word": "sowing",
+  "start": 2.529,
+  "end": 2.842
  },
  {
-  "word": "tenge",
-  "start": 2.525,
-  "end": 3.1
+  "word": "date",
+  "start": 2.854,
+  "end": 3.254
  }
 ]

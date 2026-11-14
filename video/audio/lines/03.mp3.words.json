@@ -1,37 +1,37 @@
 [
  {
-  "word": "Click",
-  "start": 0.1,
-  "end": 0.338
- },
- {
-  "word": "a",
-  "start": 0.35,
-  "end": 0.412
- },
- {
-  "word": "field",
-  "start": 0.425,
-  "end": 0.825
- },
- {
-  "word": "risk",
-  "start": 1.012,
-  "end": 1.413
+  "word": "Yet",
+  "start": 0,
+  "end": 0.168
  },
  {
   "word": "sowing",
-  "start": 1.562,
-  "end": 1.925
+  "start": 0.18,
+  "end": 0.585
  },
  {
-  "word": "date",
-  "start": 1.938,
-  "end": 2.3
+  "word": "is",
+  "start": 0.597,
+  "end": 0.692
  },
  {
-  "word": "confidence",
-  "start": 2.462,
-  "end": 3.237
+  "word": "still",
+  "start": 0.692,
+  "end": 0.906
+ },
+ {
+  "word": "decided",
+  "start": 0.906,
+  "end": 1.43
+ },
+ {
+  "word": "almost",
+  "start": 1.521,
+  "end": 1.92
+ },
+ {
+  "word": "blind",
+  "start": 1.92,
+  "end": 2.42
  }
 ]

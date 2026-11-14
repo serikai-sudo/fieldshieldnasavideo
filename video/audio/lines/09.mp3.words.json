@@ -1,37 +1,37 @@
 [
  {
   "word": "Next",
-  "start": 0.1,
-  "end": 0.588
+  "start": 0,
+  "end": 0.465
  },
  {
   "word": "every",
-  "start": 0.75,
-  "end": 1.0
+  "start": 0.56,
+  "end": 0.82
  },
  {
   "word": "rainfed",
-  "start": 1.012,
-  "end": 1.487
+  "start": 0.833,
+  "end": 1.42
  },
  {
   "word": "grain",
-  "start": 1.5,
-  "end": 1.837
+  "start": 1.433,
+  "end": 1.858
  },
  {
   "word": "belt",
-  "start": 1.85,
-  "end": 2.113
+  "start": 1.87,
+  "end": 2.108
  },
  {
   "word": "on",
-  "start": 2.125,
-  "end": 2.237
+  "start": 2.12,
+  "end": 2.295
  },
  {
   "word": "Earth",
-  "start": 2.25,
-  "end": 2.612
+  "start": 2.295,
+  "end": 2.708
  }
 ]

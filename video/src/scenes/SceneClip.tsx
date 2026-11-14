@@ -1,22 +1,32 @@
 /**
  * A cut of a real recording of the live platform, anchored on a logged event (script.ts CLIP_CUTS, public/clips.json):
- * it starts `lead` seconds before the event, so the voice line cued at the scene's start always plays over the picture
- * it describes. On the click event the camera punches in towards the click and a brick-red ring marks it; a slow push
- * runs under the whole cut. Without the clip or its events, a labelled placeholder.
+ * the anchor plays on its spoken word (`sync`) or `lead` seconds into the scene, so the picture says what the voice
+ * says. On top of the recording, in its own pixels: a brick-red ring on each click, marks drawn round the elements the
+ * voice names, rings rippling across a row of elements. The camera glides and zooms to each named element (never
+ * showing past the recording's edge), over a slow push. Without the clip or its events, a labelled placeholder.
  */
 import type React from 'react';
 import { AbsoluteFill, OffthreadVideo, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
-import { type Assets, CLIP_FILES, eventSec } from '../assets';
+import { type Assets, CLIP_FILES, type ClipEvent, eventSec } from '../assets';
+import { Marker } from '../components/Marker';
 import { Placeholder } from '../components/Placeholder';
-import { clamp01, easeOut } from '../lib/anim';
-import { CLIP_CUTS, type ClipCut, FPS, HEIGHT, WIDTH } from '../script';
+import { clamp01, easeInOut, easeOut } from '../lib/anim';
+import { wordFrame } from '../lib/words';
+import { CLIP_CUTS, type ClipCut, type Cue, FPS, HEIGHT, LINES, type SceneId, WIDTH, scene } from '../script';
 import { theme } from '../theme';
 
 type CutId = keyof typeof CLIP_CUTS;
 
-const PUNCH = 0.07;
-const PUNCH_FRAMES = 8;
 const RING_FRAMES = 18;
+const MOVE_FRAMES = 16;
+const RIPPLE_STAGGER = 3;
+
+type Point = { readonly x: number; readonly y: number; readonly w: number; readonly h: number };
+
+function pointOf(event: ClipEvent | undefined): Point | null {
+  if (event === undefined || typeof event === 'number') return null;
+  return { x: event.x, y: event.y, w: event.w ?? 0, h: event.h ?? 0 };
+}
 
 export const SceneClip: React.FC<{ readonly assets: Assets; readonly cut: CutId; readonly placeholder: string; readonly children?: React.ReactNode }> = ({
   assets,
@@ -27,59 +37,94 @@ export const SceneClip: React.FC<{ readonly assets: Assets; readonly cut: CutId;
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const spec: ClipCut = CLIP_CUTS[cut];
+  const sceneId: SceneId = cut;
+  const start = scene(sceneId).from;
   const clip = assets[spec.clip];
   const anchor = eventSec(clip.events[spec.anchor]);
-  const startSec = anchor === null ? null : Math.max(0, anchor - spec.lead);
-  /** An event as a frame of this scene with its point, when it has one. */
-  const at = (name: string | null | undefined): { readonly frame: number; readonly x: number; readonly y: number; readonly w: number } | null => {
-    const event = name === null || name === undefined ? undefined : clip.events[name];
-    if (event === undefined || typeof event === 'number' || startSec === null) return null;
-    return { frame: Math.round((event.sec - startSec) * FPS), x: event.x, y: event.y, w: event.w ?? 0 };
+  const syncAt = spec.sync === undefined ? null : (wordFrame(assets, spec.sync.line, spec.sync.word, Number.NaN, 0) - start) / FPS;
+  const anchorAtSec = syncAt !== null && Number.isFinite(syncAt) ? syncAt : spec.lead;
+  const startSec = anchor === null ? null : Math.max(0, anchor - anchorAtSec);
+
+  /** The scene frame of a cue: an event of the recording, or a spoken word. */
+  const frameOf = (when: Cue): number | null => {
+    if ('event' in when) {
+      const sec = eventSec(clip.events[when.event]);
+      return sec === null || startSec === null ? null : Math.round((sec - startSec) * FPS);
+    }
+    const fallback = (LINES[when.line]?.from ?? start) + 20;
+    return wordFrame(assets, when.line, when.word, fallback) - start;
   };
-  const line = at(spec.underline);
-  const lineDraw = line === null ? 0 : easeOut(clamp01((frame - line.frame - 4) / 10));
-  const punchAt = at(spec.punch);
-  const punch = punchAt === null ? 0 : easeOut(clamp01((frame - punchAt.frame) / PUNCH_FRAMES));
-  const drift = interpolate(frame, [0, durationInFrames], [1, 1.025], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const scale = drift * (1 + PUNCH * punch);
-  const origin = punchAt === null ? `${WIDTH / 2}px ${HEIGHT / 2}px` : `${punchAt.x}px ${punchAt.y}px`;
-  const rings = spec.rings.map((name) => at(name)).filter((ring): ring is NonNullable<typeof ring> => ring !== null);
+
+  // Camera: a chain of eased moves; each glides the target toward the centre and zooms, clamped to the recording.
+  let scale = 1;
+  let focusX = WIDTH / 2;
+  let focusY = HEIGHT / 2;
+  for (const move of spec.camera) {
+    const at = frameOf(move.when);
+    const target = pointOf(clip.events[move.target]);
+    if (at === null || target === null) continue;
+    const p = easeInOut(clamp01((frame - at) / MOVE_FRAMES));
+    scale += (move.scale - scale) * p;
+    focusX += (target.x - focusX) * p;
+    focusY += (target.y - focusY) * p;
+  }
+  const drift = interpolate(frame, [0, durationInFrames], [1, 1.02], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const s = scale * drift;
+  // The focus point moves a third of the way to the centre; the frame never shows past the recording.
+  const anchorX = focusX + (WIDTH / 2 - focusX) * 0.35;
+  const anchorY = focusY + (HEIGHT / 2 - focusY) * 0.35;
+  const tx = Math.min(0, Math.max(WIDTH - s * WIDTH, anchorX - s * focusX));
+  const ty = Math.min(0, Math.max(HEIGHT - s * HEIGHT, anchorY - s * focusY));
+
+  const rings = spec.rings
+    .map((name) => ({ at: frameOf({ event: name }), point: pointOf(clip.events[name]) }))
+    .filter((ring): ring is { at: number; point: Point } => ring.at !== null && ring.point !== null);
+  const rippleSpec = spec.ripples;
+  const rippleAt = rippleSpec === undefined ? null : frameOf(rippleSpec.when);
+  const ripples =
+    rippleSpec === undefined || rippleAt === null
+      ? []
+      : rippleSpec.targets
+          .map((name, index) => ({ at: rippleAt + index * RIPPLE_STAGGER, point: pointOf(clip.events[name]) }))
+          .filter((ripple): ripple is { at: number; point: Point } => ripple.point !== null);
+  const marks = spec.marks
+    .map((mark) => ({ mark, at: frameOf(mark.when), point: pointOf(clip.events[mark.target]) }))
+    .filter((entry): entry is { mark: (typeof spec.marks)[number]; at: number; point: Point } => entry.at !== null && entry.point !== null);
   const view = spec.view;
+
   return (
     <AbsoluteFill style={{ backgroundColor: theme.paper, overflow: 'hidden' }}>
       <AbsoluteFill style={view === undefined ? {} : { transform: `scale(${view.scale})`, transformOrigin: `${view.x}px ${view.y}px` }}>
-      <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: origin }}>
-        {clip.exists && startSec !== null ? (
-          <OffthreadVideo src={staticFile(CLIP_FILES[spec.clip])} startFrom={Math.round(startSec * FPS)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <Placeholder text={placeholder} file={CLIP_FILES[spec.clip]} />
-        )}
-        {rings.map((ring) => {
-          const progress = (frame - ring.frame) / RING_FRAMES;
-          if (progress < 0 || progress > 1) return null;
-          const size = 40 + 130 * easeOut(progress);
-          return (
-            <div
-              key={`${ring.frame}-${ring.x}`}
-              aria-hidden="true"
-              style={{ position: 'absolute', left: ring.x - size / 2, top: ring.y - size / 2, width: size, height: size, borderRadius: 999, border: `5px solid ${theme.accent}`, opacity: 0.9 * (1 - progress) }}
-            />
-          );
-        })}
-        {line !== null && line.w > 0 && lineDraw > 0 && (
-          <div
-            aria-hidden="true"
-            style={{ position: 'absolute', left: line.x - line.w / 2 - 6, top: line.y + 17, width: line.w + 12, height: 5, borderRadius: 3, backgroundColor: theme.accent, transformOrigin: 'left', transform: `scaleX(${lineDraw})` }}
-          />
-        )}
-      </AbsoluteFill>
+        <AbsoluteFill style={{ transform: `translate(${tx}px, ${ty}px) scale(${s})`, transformOrigin: '0 0' }}>
+          {clip.exists && startSec !== null ? (
+            <OffthreadVideo src={staticFile(CLIP_FILES[spec.clip])} startFrom={Math.round(startSec * FPS)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <Placeholder text={placeholder} file={CLIP_FILES[spec.clip]} />
+          )}
+          {[...rings.map((ring) => ({ ...ring, big: true })), ...ripples.map((ripple) => ({ ...ripple, big: false }))].map((ring) => {
+            const progress = (frame - ring.at) / RING_FRAMES;
+            if (progress < 0 || progress > 1) return null;
+            const size = ring.big ? 40 + 130 * easeOut(progress) : Math.max(ring.point.w, 60) * (0.9 + 0.5 * easeOut(progress));
+            const height = ring.big ? size : ring.point.h * (1.2 + 0.6 * easeOut(progress));
+            return (
+              <div
+                key={`${ring.at}-${ring.point.x}`}
+                aria-hidden="true"
+                style={{ position: 'absolute', left: ring.point.x - size / 2, top: ring.point.y - height / 2, width: size, height, borderRadius: 999, border: `${ring.big ? 5 : 4}px solid ${theme.accent}`, opacity: 0.9 * (1 - progress) }}
+              />
+            );
+          })}
+          {marks.map(({ mark, at, point }) => (
+            <Marker key={`${mark.target}-${mark.kind}`} kind={mark.kind} x={point.x} y={point.y} w={point.w} h={point.h || 22} from={at} />
+          ))}
+        </AbsoluteFill>
       </AbsoluteFill>
       {children}
     </AbsoluteFill>
   );
 };
 
-/** "Sow around May 28": a paper band slides down over the top of the frame, the words land one by one. */
+/** "Sow around May 28": a paper band that drops in from the top, the words landing one by one, the date in accent. */
 export const SowBand: React.FC<{ readonly text: string; readonly from: number }> = ({ text, from }) => {
   const frame = useCurrentFrame();
   if (frame < from) return null;
@@ -116,16 +161,7 @@ export const SowBand: React.FC<{ readonly text: string; readonly from: number }>
         const wordIn = easeOut(clamp01((local - 4 - index * 4) / 7));
         const isDate = index >= words.length - 2;
         return (
-          <span
-            key={`${word}-${index}`}
-            style={{
-              position: 'relative',
-              display: 'inline-block',
-              opacity: wordIn,
-              transform: `translateY(${(1 - wordIn) * 34}px)`,
-              color: isDate ? theme.accent : theme.ink,
-            }}
-          >
+          <span key={`${word}-${index}`} style={{ position: 'relative', display: 'inline-block', opacity: wordIn, transform: `translateY(${(1 - wordIn) * 34}px)`, color: isDate ? theme.accent : theme.ink }}>
             {word}
             {isDate && index === words.length - 1 && (
               <span aria-hidden="true" style={{ position: 'absolute', left: '-140%', right: 0, bottom: -10, height: 8, backgroundColor: theme.accent, transformOrigin: 'left', transform: `scaleX(${underline})` }} />
@@ -134,5 +170,30 @@ export const SowBand: React.FC<{ readonly text: string; readonly from: number }>
         );
       })}
     </div>
+  );
+};
+
+/**
+ * A full-frame kinetic question (paper, Fraunces, the last word in accent) that covers the start of a clip scene and
+ * whips away to the left at `until` (scene frames), revealing the recording under it.
+ */
+export const QuestionInsert: React.FC<{ readonly text: string; readonly until: number }> = ({ text, until }) => {
+  const frame = useCurrentFrame();
+  const leave = easeInOut(clamp01((frame - until) / 7));
+  if (leave >= 1) return null;
+  const words = text.split(' ');
+  return (
+    <AbsoluteFill style={{ backgroundColor: theme.paper, alignItems: 'center', justifyContent: 'center', transform: `translateX(${-leave * 2000}px)`, filter: leave > 0.02 ? `blur(${(leave * 16).toFixed(1)}px)` : undefined }}>
+      <div style={{ display: 'flex', gap: 34, fontFamily: "'Fraunces', Georgia, serif", fontSize: 150, fontWeight: 500, letterSpacing: '-0.02em', color: theme.ink }}>
+        {words.map((word, index) => {
+          const rise = easeOut(clamp01((frame - 2 - index * 4) / 8));
+          return (
+            <span key={`${word}-${index}`} style={{ display: 'inline-block', opacity: rise, transform: `translateY(${(1 - rise) * 60}px) scale(${0.9 + 0.1 * rise})`, color: index === words.length - 1 ? theme.accent : theme.ink }}>
+              {word}
+            </span>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
   );
 };

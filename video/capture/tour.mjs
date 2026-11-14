@@ -287,7 +287,10 @@ async function recordMagic(browser, base) {
   const open = page.getByRole('link', { name: 'Open full field page →' });
   await expectVisible(page, open, '"Open full field page →"');
   raw.panelShown = Date.now();
-  await sleep(2000); // the summary panel: "High caution" is read on screen
+  await sleep(300);
+  const verdictAt = Date.now();
+  const verdict = await outputBox(page.locator('[data-panel] p[data-posture]'));
+  await sleep(1700); // the summary panel: "High caution" is read on screen
   raw.openClick = await glide(page, open, '"Open full field page →"');
   const sowingTab = page.getByRole('tab', { name: /^Sowing/ });
   await expectVisible(page, sowingTab, 'Sowing tab (field page)');
@@ -297,7 +300,14 @@ async function recordMagic(browser, base) {
   raw.sowingClick = await glide(page, sowingTab, 'Sowing tab');
   await expectVisible(page, page.getByText(/^Sow around May 28/), '"Sow around May 28"');
   raw.sowingReady = Date.now();
-  await sleep(4000); // the dial holds long enough for its whole voice line
+  await sleep(200);
+  const sowingBoxesAt = Date.now();
+  const headline = await contentBox(page.locator('#sowing-decision'));
+  const pills = [];
+  const pillLinks = page.locator('[data-crop-switcher] > a');
+  for (let i = 0; i < (await pillLinks.count()); i += 1) pills.push(await outputBox(pillLinks.nth(i)));
+  const pillRow = await outputBox(page.locator('[data-crop-switcher]'));
+  await sleep(3800); // the dial holds long enough for its whole voice line
   const file = await finishRecording(context, page, 'magic');
   trim = Number(Math.max(0, (tPaint - t0) / 1000 - 0.15).toFixed(2));
   const events = {
@@ -308,7 +318,12 @@ async function recordMagic(browser, base) {
     fieldPage: clock.at(raw.fieldPage),
     sowingClick: clock.click(raw.sowingClick),
     sowingReady: clock.at(raw.sowingReady),
+    verdict: boxEvent(clock, verdictAt, verdict),
+    sowingHeadline: boxEvent(clock, sowingBoxesAt, headline),
+    cropPills: boxEvent(clock, sowingBoxesAt, pillRow),
+    ...Object.fromEntries(pills.map((box, i) => [`cropPill${i}`, boxEvent(clock, sowingBoxesAt, box)])),
   };
+  for (const [name, value] of Object.entries(events)) if (value === undefined) throw new Error(`magic: no box for ${name}`);
   return { file, trim, events };
 }
 
@@ -331,10 +346,22 @@ async function recordReplay(browser, base) {
   await expectVisible(page, page.getByRole('heading', { name: 'How do we know? We replayed 2012.' }), 'replay heading');
   await expectVisible(page, page.getByText('What really happened · 2012 harvest'), '"What really happened · 2012 harvest"');
   raw.replayReady = Date.now();
-  await sleep(4200); // the replay holds long enough for its whole voice line
+  await sleep(300);
+  const boxesAt = Date.now();
+  // The frame's own line under the date, not the sentence above it that says the same: the last match on the page.
+  const caution = await textBox(page, 'High caution', 'last').then(async (box) => (await textBox(page, 'Jul 18 · High caution', 'first')) ?? box);
+  const days = await textBox(page, '55 days before harvest', 'last');
+  await sleep(4400); // the replay holds long enough for its whole voice line
   const file = await finishRecording(context, page, 'replay');
   trim = Number(Math.max(0, (tPaint - t0) / 1000 - 0.15).toFixed(2));
-  return { file, trim, events: { replayClick: clock.click(raw.replayClick), replayReady: clock.at(raw.replayReady) } };
+  const events = {
+    replayClick: clock.click(raw.replayClick),
+    replayReady: clock.at(raw.replayReady),
+    cautionRow: boxEvent(clock, boxesAt, caution),
+    daysLine: boxEvent(clock, boxesAt, days),
+  };
+  for (const [name, value] of Object.entries(events)) if (value === undefined) throw new Error(`replay: no box for ${name}`);
+  return { file, trim, events };
 }
 
 /* -------------------------------------------------------------------------------------------------- screenshots */
@@ -408,6 +435,61 @@ async function outputBox(locator) {
   const b = await locator.first().boundingBox();
   if (b === null) return null;
   return { x: Math.round(b.x * OUTPUT_SCALE), y: Math.round(b.y * OUTPUT_SCALE), w: Math.round(b.width * OUTPUT_SCALE), h: Math.round(b.height * OUTPUT_SCALE) };
+}
+
+/**
+ * The box of a piece of text in output pixels: exactly the words `needle` (a text range inside one text node) when they
+ * sit in one, else the deepest visible element whose text holds them. `pick` chooses the first or last match in
+ * document order. Null when the text is not on the page.
+ */
+async function textBox(page, needle, pick = 'first') {
+  return page.evaluate(
+    ([text, which, scale]) => {
+      const visible = (element) => element !== null && element.getClientRects().length > 0;
+      const hits = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+        const at = node.nodeValue.indexOf(text);
+        if (at >= 0 && visible(node.parentElement)) hits.push({ node, at });
+      }
+      let rect = null;
+      const hit = which === 'last' ? hits[hits.length - 1] : hits[0];
+      if (hit !== undefined) {
+        const range = document.createRange();
+        range.setStart(hit.node, hit.at);
+        range.setEnd(hit.node, hit.at + text.length);
+        rect = range.getBoundingClientRect();
+      } else {
+        const flat = (element) => (element.innerText ?? '').replace(/\s+/g, ' ');
+        const holders = [...document.querySelectorAll('body *')].filter((element) => visible(element) && flat(element).includes(text));
+        const deepest = holders.filter((element) => ![...element.children].some((child) => flat(child).includes(text)));
+        const element = which === 'last' ? deepest[deepest.length - 1] : deepest[0];
+        if (element === undefined) return null;
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        rect = range.getBoundingClientRect();
+      }
+      return { x: Math.round(rect.x * scale), y: Math.round(rect.y * scale), w: Math.round(rect.width * scale), h: Math.round(rect.height * scale) };
+    },
+    [needle, pick, OUTPUT_SCALE],
+  );
+}
+
+/** The box of an element's own text (a range over its contents), in output pixels; null when it is missing. */
+async function contentBox(locator) {
+  if ((await locator.count()) === 0) return null;
+  return locator.first().evaluate((element, scale) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const b = range.getBoundingClientRect();
+    return { x: Math.round(b.x * scale), y: Math.round(b.y * scale), w: Math.round(b.width * scale), h: Math.round(b.height * scale) };
+  }, OUTPUT_SCALE);
+}
+
+/** A logged box as a clip event: its centre, width and height at the moment `at`. */
+function boxEvent(clock, at, box) {
+  if (box === null) return undefined;
+  return { sec: clock.at(at), x: box.x + Math.round(box.w / 2), y: box.y + Math.round(box.h / 2), w: box.w, h: box.h };
 }
 
 /**
