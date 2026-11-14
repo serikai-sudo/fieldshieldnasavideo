@@ -6,7 +6,7 @@
   "scripts": {
     "capture": "node capture/tour.mjs",
     "studio": "remotion studio",
-    "render": "remotion render FieldShift out/field-shift.mp4",
+    "render": "remotion render FieldShift out/field-shift.mp4 && node scripts/tidy-duration.mjs out/field-shift.mp4",
     "fonts": "node scripts/copy-fonts.mjs",
     "postinstall": "node scripts/copy-fonts.mjs",
     "typecheck": "tsc --noEmit",
