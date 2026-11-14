@@ -1,0 +1,15 @@
+# dependencies and build output
+node_modules
+out/
+capture/out/
+*.log
+tsconfig.tsbuildinfo
+
+# generated at install (copied from node_modules by scripts/copy-fonts.mjs)
+public/fonts/
+
+# produced by `pnpm capture` / supplied by hand; large binaries stay out of git
+public/*.mp4
+public/*.webm
+public/*.mp3
+public/clips.json
