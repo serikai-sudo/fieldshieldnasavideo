@@ -1,34 +1,29 @@
 /**
  * Which optional assets exist in public/ — probed once per composition load (calculateMetadata), so Studio and the
- * renderer work before the clips, screenshots and voice-over exist, and pick them up by filename the moment they do.
+ * renderer work before the footage and the voice-over exist, and pick them up by filename the moment they do.
  */
 import { staticFile } from 'remotion';
-import { TEXT } from './script';
+import { STEPS } from './script';
 
-export type ClipInfo = {
-  readonly exists: boolean;
-  /** Duration in seconds from public/clips.json (written by capture/tour.mjs); null when unknown. */
-  readonly seconds: number | null;
-};
+export type TourClick = { readonly sec: number; readonly x: number; readonly y: number };
+export type TourStep = { readonly id: string; readonly startSec: number; readonly click: TourClick | null };
 
 export type Assets = {
-  readonly magic: ClipInfo;
-  readonly replay: ClipInfo;
+  readonly tour: {
+    readonly exists: boolean;
+    /** Duration of tour.mp4 in seconds, from tour.json; null when unknown. */
+    readonly seconds: number | null;
+    /** One entry per step of script.ts STEPS, in order; null when tour.json is missing or does not match. */
+    readonly steps: readonly TourStep[] | null;
+  };
   readonly voiceover: boolean;
-  /** Keyed by file name (TEXT.validation.strip[].file). */
-  readonly shots: Readonly<Record<string, boolean>>;
 };
 
-export const CLIP_FILES = { magic: 'clip-magic.mp4', replay: 'clip-replay.mp4' } as const;
+export const TOUR_FILE = 'tour.mp4';
+export const TOUR_JSON = 'tour.json';
 export const VOICEOVER_FILE = 'voiceover.mp3';
-export const CLIPS_JSON = 'clips.json';
 
-export const NO_ASSETS: Assets = {
-  magic: { exists: false, seconds: null },
-  replay: { exists: false, seconds: null },
-  voiceover: false,
-  shots: Object.fromEntries(TEXT.validation.strip.map((shot) => [shot.file, false])),
-};
+export const NO_ASSETS: Assets = { tour: { exists: false, seconds: null, steps: null }, voiceover: false };
 
 /** True when the static server answers with the file itself (not a 404, not an index.html fallback). */
 async function fileExists(name: string): Promise<boolean> {
@@ -42,47 +37,44 @@ async function fileExists(name: string): Promise<boolean> {
   }
 }
 
-type ClipsJson = Partial<Record<keyof typeof CLIP_FILES, { readonly seconds?: number }>>;
+function isRecord(x: unknown): x is Record<string, unknown> {
+  return typeof x === 'object' && x !== null && !Array.isArray(x);
+}
 
-async function readClipsJson(): Promise<ClipsJson> {
+function finite(x: unknown): number | null {
+  return typeof x === 'number' && Number.isFinite(x) ? x : null;
+}
+
+/** Reads public/tour.json; the steps are accepted only when they are the script's steps, in order. */
+async function readTourJson(): Promise<{ seconds: number | null; steps: readonly TourStep[] | null }> {
   try {
-    const response = await fetch(staticFile(CLIPS_JSON), { cache: 'no-store' });
-    if (!response.ok) return {};
+    const response = await fetch(staticFile(TOUR_JSON), { cache: 'no-store' });
+    if (!response.ok) return { seconds: null, steps: null };
     const type = response.headers.get('content-type') ?? '';
-    if (type.includes('text/html')) return {};
+    if (type.includes('text/html')) return { seconds: null, steps: null };
     const parsed: unknown = await response.json();
-    return typeof parsed === 'object' && parsed !== null ? (parsed as ClipsJson) : {};
+    if (!isRecord(parsed)) return { seconds: null, steps: null };
+    const seconds = finite(parsed['seconds']);
+    const raw = parsed['steps'];
+    if (!Array.isArray(raw) || raw.length !== STEPS.length) return { seconds, steps: null };
+    const steps: TourStep[] = [];
+    for (const [index, entry] of raw.entries()) {
+      if (!isRecord(entry) || entry['id'] !== STEPS[index]?.id) return { seconds, steps: null };
+      const startSec = finite(entry['startSec']);
+      if (startSec === null) return { seconds, steps: null };
+      const click = entry['click'];
+      const sec = isRecord(click) ? finite(click['sec']) : null;
+      const x = isRecord(click) ? finite(click['x']) : null;
+      const y = isRecord(click) ? finite(click['y']) : null;
+      steps.push({ id: String(entry['id']), startSec, click: sec !== null && x !== null && y !== null ? { sec, x, y } : null });
+    }
+    return { seconds, steps };
   } catch {
-    return {};
+    return { seconds: null, steps: null };
   }
 }
 
 export async function probeAssets(): Promise<Assets> {
-  const [magic, replay, voiceover, clips, ...shots] = await Promise.all([
-    fileExists(CLIP_FILES.magic),
-    fileExists(CLIP_FILES.replay),
-    fileExists(VOICEOVER_FILE),
-    readClipsJson(),
-    ...TEXT.validation.strip.map((shot) => fileExists(shot.file)),
-  ]);
-  const seconds = (key: keyof typeof CLIP_FILES): number | null => {
-    const value = clips[key]?.seconds;
-    return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
-  };
-  return {
-    magic: { exists: magic, seconds: seconds('magic') },
-    replay: { exists: replay, seconds: seconds('replay') },
-    voiceover,
-    shots: Object.fromEntries(TEXT.validation.strip.map((shot, index) => [shot.file, shots[index] ?? false])),
-  };
-}
-
-/**
- * The playback rate that fits a clip into its slot: 1× when it already fits, faster up to 1.5× when it is longer.
- * A clip that is still too long is simply cut by the slot (it ends on a held frame anyway).
- */
-export function rateFor(clip: ClipInfo, slotSeconds: number): number {
-  if (clip.seconds === null) return 1;
-  const needed = clip.seconds / slotSeconds;
-  return Math.min(1.5, Math.max(1, Math.round(needed * 100) / 100));
+  const [tourExists, voiceover, tour] = await Promise.all([fileExists(TOUR_FILE), fileExists(VOICEOVER_FILE), readTourJson()]);
+  return { tour: { exists: tourExists, seconds: tour.seconds, steps: tourExists ? tour.steps : null }, voiceover };
 }

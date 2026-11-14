@@ -14,6 +14,9 @@ importers:
       '@remotion/fonts':
         specifier: 4.0.543
         version: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@remotion/transitions':
+        specifier: 4.0.543
+        version: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -434,6 +437,12 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
+  '@remotion/shapes@4.0.543':
+    resolution: {integrity: sha512-zYMA3M4gmnMcpbG6XF7Bx5cTEqXDTXwmmGLIa7VofzEHxVQBQn7cn42/6oXMjx5J3lOLkQXF7Lvg9COQA3q1Rw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
   '@remotion/streaming@4.0.543':
     resolution: {integrity: sha512-inKIcnywMc7+cCIRnmymFBPE5FccvLqis+Ja0zWRmHQfMdoj8RjCmPk1WGxkLb7aVEe+nA9L8lYAlYXMbv7Frg==}
 
@@ -461,6 +470,12 @@ packages:
 
   '@remotion/timeline-utils@4.0.543':
     resolution: {integrity: sha512-M0d72K18chlRRpftmke8Ll/xsFS69dOEOvRPfshYWvJ7Nk8IGmXiCHp+9ZYddkuolseOP5rwy11CxiZsabEZkQ==}
+
+  '@remotion/transitions@4.0.543':
+    resolution: {integrity: sha512-z5FK5W7x0etmJMPAc3tZIQA60m3OSzZlmt+P9HQgHmbU29QSCVO9QNQVT6LEMJ5pIWx480472M5J2ZmtI3Pkow==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@remotion/web-renderer@4.0.543':
     resolution: {integrity: sha512-UqJXVw170/Kn2Fcw2WZ0cwuae5M+dgx/NqkCgvV9wP8+VUaaM0UHXIAVa5BH0wC9ybTR3ZkVjIB8T6it4ZokHA==}
@@ -1626,13 +1641,13 @@ snapshots:
       '@remotion/timeline-utils': 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@rspack/core': 2.3.0
       '@rspack/plugin-react-refresh': 2.0.2(@rspack/core@2.3.0)(react-refresh@0.18.0)
-      css-loader: 7.1.4(@rspack/core@2.3.0)(webpack@5.105.0(postcss@8.5.33))
+      css-loader: 7.1.4(@rspack/core@2.3.0)(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.33))
       esbuild: 0.28.1
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       react-refresh: 0.18.0
       remotion: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      style-loader: 4.0.0(webpack@5.105.0(postcss@8.5.33))
+      style-loader: 4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.33))
       webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.33)
     transitivePeerDependencies:
       - '@minify-html/node'
@@ -1817,6 +1832,13 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
       remotion: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
+  '@remotion/shapes@4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@remotion/paths': 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      remotion: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+
   '@remotion/streaming@4.0.543': {}
 
   '@remotion/studio-protocol@4.0.543':
@@ -1913,6 +1935,14 @@ snapshots:
     transitivePeerDependencies:
       - react
       - react-dom
+
+  '@remotion/transitions@4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@remotion/paths': 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@remotion/shapes': 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      remotion: 4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   '@remotion/web-renderer@4.0.543(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
@@ -2269,7 +2299,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.4(@rspack/core@2.3.0)(webpack@5.105.0(postcss@8.5.33)):
+  css-loader@7.1.4(@rspack/core@2.3.0)(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.33)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.33)
       postcss: 8.5.33
@@ -2636,7 +2666,7 @@ snapshots:
 
   strip-final-newline@2.0.0: {}
 
-  style-loader@4.0.0(webpack@5.105.0(postcss@8.5.33)):
+  style-loader@4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.33)):
     dependencies:
       webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.33)
 

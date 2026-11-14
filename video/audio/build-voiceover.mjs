@@ -8,7 +8,7 @@
  * (Higgsfield Seed Audio 1.0, preset voice Gracie) and committed, so the render never depends on the TTS service.
  *
  * Each take is trimmed of leading/trailing silence and loudness-normalised (EBU R128 −16 LUFS); a take that runs
- * longer than its window (next cue − its cue − 0.25 s) is time-stretched, pitch-preserving, by at most 20 %; internal
+ * longer than its window (next cue − its cue − 0.25 s) is time-stretched, pitch-preserving, by at most 8 %; internal
  * pauses longer than 0.28 s are shortened to 0.16 s first.
  */
 import { spawnSync } from 'node:child_process';
@@ -22,7 +22,7 @@ const LINES_DIR = join(ROOT, 'audio', 'lines');
 const WORK = join(ROOT, 'audio', 'work');
 const OUT = join(ROOT, 'public', 'voiceover.mp3');
 const GAP_SECONDS = 0.25;
-const MAX_STRETCH = 1.2;
+const MAX_STRETCH = 1.08;
 const TOTAL_SECONDS = TOTAL_FRAMES / FPS;
 
 function run(args) {

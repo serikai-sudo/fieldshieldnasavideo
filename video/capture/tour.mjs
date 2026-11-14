@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 /**
- * Films the REAL Field Shift platform with Playwright and a visible, human-paced cursor, then converts the recordings
- * with ffmpeg into the two clips the Remotion composition expects, plus four screenshots for the Scene 5 strip:
+ * Films the REAL Field Shift platform as one continuous walkthrough with a visible, human-paced cursor, and writes
+ * the second each step begins so the composition can cut the footage into its eight steps:
  *
- *   public/clip-magic.mp4   /map?year=2026 → click the Kostanay node → "Open full field page →" → Sowing tab → "May 28"
- *   public/clip-replay.mp4  /field/kostanay-01?year=2026 → Replay tab → the 2012 season replayed
- *   public/shot-water.png, shot-heat.png, shot-money.png, shot-crops.png   (1920×1080 viewport captures)
- *   public/clips.json       durations, so the composition picks a playback rate that fits each slot
- *   capture/out/            the raw .webm recordings and ffmpeg-commands.txt (the exact commands that were run)
+ *   1 pick       /map?year=2026 → the Kostanay node is clicked, the season summary opens
+ *   2 season     the Season slider is dragged 2026 → 2025 (the year numeral and the nodes change), then
+ *                "Open full field page →"
+ *   3 overview   /field/kostanay-01?year=2025, the verdict, the risk score, the sowing date
+ *   4–8          the Water, Heat, Sowing, Replay and Confidence tabs
  *
- * Target: FIELD_SHIFT_URL (default https://shield-field.vercel.app). If it is unreachable and LOCAL_APP_DIR points at a
- * checkout of the app, `pnpm build && pnpm start` runs there and http://localhost:3000 is filmed instead (same code).
- * Needs `ffmpeg`/`ffprobe` on PATH. HTTPS_PROXY, when set, is passed to Chromium (sandboxes); otherwise direct.
+ * Output: public/tour.mp4 (H.264, 1920×1080, 30 fps) and public/tour.json ({ seconds, trimSeconds, steps: [{ id,
+ * startSec, click: { sec, x, y } | null }] }, seconds in the mp4, x/y in output pixels); the raw .webm and the exact
+ * ffmpeg command land in capture/out/. Target: FIELD_SHIFT_URL (default https://shield-field.vercel.app); if it is
+ * unreachable and LOCAL_APP_DIR points at a checkout of the app, `pnpm build && pnpm start` runs there and
+ * http://localhost:3000 is filmed. Needs `ffmpeg`/`ffprobe` on PATH. HTTPS_PROXY, when set, is passed to Chromium.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
@@ -25,27 +27,28 @@ const PUBLIC = join(ROOT, 'public');
 
 const LIVE_URL = (process.env.FIELD_SHIFT_URL ?? 'https://shield-field.vercel.app').replace(/\/$/, '');
 const LOCAL_URL = 'http://localhost:3000';
-const YEAR = '2026';
-const FIELD_ID = 'kostanay-01';
-/** Rudny district: a committed demo point, so /place answers from disk; the crop switcher is on every /place page. */
-const PLACE_QUERY = `lat=52.9880&lon=63.1200&year=${YEAR}&name=Rudny`;
+const OPEN_YEAR = 2026;
+const PICK_YEAR = 2025;
+const FIELD_NODE = /^Kostanay:/;
 
-/** The clips are always 1920×1080. */
+/** The clip is always 1920×1080. */
 const OUTPUT = { width: 1920, height: 1080 };
 /**
  * The browser viewport the page is laid out in. The app's content column is 1200 px wide, so at a 1920 px viewport the
  * UI is small on screen; 1440×810 (the default) is laid out 1.33× larger. Playwright records at the viewport's CSS
- * size (it never upscales, it pads with grey), rendered at deviceScaleFactor 2 for a supersampled picture, and the
- * ffmpeg step below scales the recording to 1920×1080. CAPTURE_VIEWPORT=1920x1080 films at native size instead.
+ * size (it never upscales), rendered at deviceScaleFactor 2 for a supersampled picture, and the ffmpeg step scales the
+ * recording to 1920×1080. CAPTURE_VIEWPORT=1920x1080 films at native size instead.
  */
 const VIEWPORT = parseViewport(process.env.CAPTURE_VIEWPORT) ?? { width: 1440, height: 810 };
-/** Pixels of the recording per CSS pixel of the page. */
 const OUTPUT_SCALE = OUTPUT.width / VIEWPORT.width;
-/** The arrow is ~34 px in the recording whatever the viewport. */
+/** The arrow is ~34 px in the clip whatever the viewport. */
 const CURSOR_PX = Math.round(34 / OUTPUT_SCALE);
-const GLIDE_MS = 800;
-const CLICK_PAUSE_MS = 250;
+const GLIDE_MS = 850;
+const CLICK_PAUSE_MS = 260;
 const NAV_TIMEOUT = 90_000;
+
+/** How long each step is held on screen after its action, so every step's footage is at least its segment's length. */
+const HOLD_MS = { pick: 2600, season: 1300, overview: 4300, water: 2600, heat: 2600, sowing: 2900, replay: 2900, confidence: 2800 };
 
 function parseViewport(value) {
   const match = /^(\d{3,4})x(\d{3,4})$/.exec(value ?? '');
@@ -145,23 +148,81 @@ async function expectVisible(page, locator, label, timeout = NAV_TIMEOUT) {
   }
 }
 
+/** Brings an element into the viewport with a smooth scroll (centred), instead of Playwright's instant jump. */
+async function reveal(page, locator) {
+  const target = locator.first();
+  const box = await target.boundingBox();
+  if (box === null) return;
+  const inView = box.y >= 40 && box.y + box.height <= VIEWPORT.height - 40;
+  if (inView) return;
+  await target.evaluate((element) => element.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  await sleep(750);
+}
+
+/** Centre of an element in viewport CSS pixels. */
+async function centreOf(locator) {
+  const box = await locator.first().boundingBox();
+  if (box === null) throw new Error('element has no bounding box');
+  return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2), box };
+}
+
 /** Eases the visible cursor to the element's centre, pauses, ripples, then performs the REAL click. */
-async function glide(page, locator, label, ms = GLIDE_MS) {
+async function glide(page, locator, label, clock, ms = GLIDE_MS) {
   const target = locator.first();
   await expectVisible(page, target, label);
-  await target.scrollIntoViewIfNeeded();
-  await sleep(120);
-  const box = await target.boundingBox();
-  if (box === null) throw new Error(`glide: ${label} has no bounding box`);
-  const x = Math.round(box.x + box.width / 2);
-  const y = Math.round(box.y + box.height / 2);
+  await reveal(page, target);
+  const { x, y } = await centreOf(target);
   await page.evaluate(([gx, gy, gms]) => window.__glide(gx, gy, gms), [x, y, ms]);
   await page.mouse.move(x, y);
   await sleep(CLICK_PAUSE_MS);
   await page.evaluate(([rx, ry]) => { window.__cursorPress(true); return window.__ripple(rx, ry); }, [x, y]).catch(() => {});
-  await target.click({ position: { x: box.width / 2, y: box.height / 2 } });
+  const sec = clock();
+  await target.click();
   await page.evaluate(() => window.__cursorPress(false)).catch(() => {});
-  log(`clicked ${label} at ${x},${y}`);
+  log(`clicked ${label} at ${x},${y} (${sec.toFixed(2)} s)`);
+  return { sec, x, y };
+}
+
+/** Drags a range input from its current value to `value`, cursor and real pointer together. */
+async function dragSlider(page, locator, value, clock) {
+  const target = locator.first();
+  await reveal(page, target);
+  const { box } = await centreOf(target);
+  const min = Number(await target.getAttribute('min'));
+  const max = Number(await target.getAttribute('max'));
+  const current = Number(await target.inputValue());
+  const thumbHalf = 10;
+  const xFor = (v) => Math.round(box.x + thumbHalf + ((v - min) / (max - min)) * (box.width - 2 * thumbHalf));
+  const y = Math.round(box.y + box.height / 2);
+  const from = xFor(current);
+  const to = xFor(value);
+  await page.evaluate(([gx, gy, gms]) => window.__glide(gx, gy, gms), [from, y, GLIDE_MS]);
+  await page.mouse.move(from, y);
+  await sleep(CLICK_PAUSE_MS);
+  await page.evaluate(() => window.__cursorPress(true)).catch(() => {});
+  const sec = clock();
+  await page.mouse.down();
+  const steps = 22;
+  for (let i = 1; i <= steps; i += 1) {
+    const p = i / steps;
+    const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    const x = Math.round(from + (to - from) * e);
+    await page.mouse.move(x, y);
+    await page.evaluate(([gx, gy]) => window.__glide(gx, gy, 20), [x, y]);
+    await sleep(28);
+  }
+  await page.mouse.up();
+  await page.evaluate(() => window.__cursorPress(false)).catch(() => {});
+  // The drag lands on the nearest year; correct by keyboard if it missed by one.
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const now = Number(await target.inputValue());
+    if (now === value) break;
+    await target.focus();
+    await page.keyboard.press(now > value ? 'ArrowLeft' : 'ArrowRight');
+    await sleep(120);
+  }
+  log(`dragged the Season slider ${current} → ${await target.inputValue()} (${sec.toFixed(2)} s)`);
+  return { sec, x: to, y };
 }
 
 function run(command, args, options = {}) {
@@ -191,7 +252,7 @@ function proxyOption() {
 async function reachable(browser, base) {
   const page = await browser.newPage();
   try {
-    const response = await page.goto(`${base}/map?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: 25_000 });
+    const response = await page.goto(`${base}/map?year=${OPEN_YEAR}`, { waitUntil: 'domcontentloaded', timeout: 25_000 });
     const ok = response !== null && response.ok();
     log(`${base} → ${response === null ? 'no response' : response.status()}`);
     return ok;
@@ -222,9 +283,9 @@ async function resolveTarget(browser) {
   throw new Error('the local server did not come up on port 3000 within 90 s');
 }
 
-/* ------------------------------------------------------------------------------------------------------- clips */
+/* ---------------------------------------------------------------------------------------------------- the tour */
 
-async function newRecordingContext(browser) {
+async function recordTour(browser, base) {
   const context = await browser.newContext({
     viewport: VIEWPORT,
     deviceScaleFactor: 2,
@@ -234,113 +295,72 @@ async function newRecordingContext(browser) {
     colorScheme: 'light',
   });
   await context.addInitScript(CURSOR_SCRIPT.replace('__CURSOR_PX__', String(CURSOR_PX)));
-  return context;
-}
+  const page = await context.newPage();
+  const t0 = Date.now();
+  const clock = () => (Date.now() - t0) / 1000;
+  const steps = [];
+  const begin = (id) => {
+    const startSec = clock();
+    steps.push({ id, startSec, click: null });
+    log(`step ${steps.length} ${id} begins at ${startSec.toFixed(2)} s`);
+  };
+  const clicked = (click) => {
+    steps[steps.length - 1].click = click;
+  };
 
-/** Closes the context (which finalises the recording) and moves the .webm to a stable name. */
-async function finishRecording(context, page, name) {
+  await page.goto(`${base}/map?year=${OPEN_YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+  await expectVisible(page, page.getByRole('heading', { name: 'Pick a field. Read its season.' }), 'map page heading');
+  const paintSec = clock();
+  const node = page.getByRole('button', { name: FIELD_NODE });
+  await expectVisible(page, node, 'Kostanay node');
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => log('networkidle not reached in 5 s; continuing'));
+  await sleep(800);
+
+  // 1 · pick a field
+  begin('pick');
+  clicked(await glide(page, node, 'Kostanay node', clock));
+  const open = page.getByRole('link', { name: 'Open full field page →' });
+  await expectVisible(page, open, '"Open full field page →"');
+  await sleep(HOLD_MS.pick);
+
+  // 2 · choose the season: drag the slider, let the map and the panel follow, then open the full page
+  begin('season');
+  const slider = page.getByRole('slider', { name: 'Season' });
+  await expectVisible(page, slider, 'Season slider');
+  clicked(await dragSlider(page, slider, PICK_YEAR, clock));
+  await expectVisible(page, open, '"Open full field page →" after the season change');
+  await sleep(HOLD_MS.season);
+  await glide(page, open, '"Open full field page →"', clock);
+
+  // 3 · overview
+  const title = page.locator('[data-place-title]');
+  await expectVisible(page, title, 'field page title');
+  await page.waitForURL((url) => url.pathname.startsWith('/field/') && url.searchParams.get('year') === String(PICK_YEAR), { timeout: NAV_TIMEOUT }).catch(() => log('field page URL did not carry the picked year; continuing'));
+  begin('overview');
+  await sleep(HOLD_MS.overview);
+
+  // 4–8 · the tabs
+  for (const [id, label] of [['water', 'Water'], ['heat', 'Heat'], ['sowing', 'Sowing'], ['replay', 'Replay'], ['confidence', 'Confidence']]) {
+    begin(id);
+    const tab = page.getByRole('tab', { name: new RegExp(`^${label}`) });
+    clicked(await glide(page, tab, `${label} tab`, clock));
+    await expectVisible(page, page.locator(`[data-facet="${id}"]`), `${label} facet`);
+    await sleep(HOLD_MS[id]);
+  }
+  await sleep(500);
+
   const video = page.video();
   await context.close();
   const recorded = await video.path();
-  const target = join(OUT, `${name}.webm`);
-  renameSync(recorded, target);
-  return target;
-}
-
-/** The map → field → Sowing tour. Returns the raw recording and the seconds to trim off its head (blank load frames). */
-async function recordMagic(browser, base) {
-  const context = await newRecordingContext(browser);
-  const page = await context.newPage();
-  const t0 = Date.now();
-  await page.goto(`${base}/map?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-  await expectVisible(page, page.getByRole('heading', { name: 'Pick a field. Read its season.' }), 'map page heading');
-  const tPaint = Date.now();
-  const node = page.getByRole('button', { name: /^Kostanay:/ });
-  await expectVisible(page, node, 'Kostanay node');
-  // Basemap tiles: wait for the network to go quiet, but never longer than the tour can afford.
-  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => log('networkidle not reached in 5 s; continuing'));
-  await sleep(600); // hold on the map before the cursor moves
-  await glide(page, node, 'Kostanay node');
-  const open = page.getByRole('link', { name: 'Open full field page →' });
-  await expectVisible(page, open, '"Open full field page →"');
-  await sleep(1000); // the summary panel: the verdict and "Sow around May 28" are read
-  await glide(page, open, '"Open full field page →"');
-  const sowingTab = page.getByRole('tab', { name: /^Sowing/ });
-  await expectVisible(page, sowingTab, 'Sowing tab (field page)');
-  await expectVisible(page, page.locator('[data-place-title]'), 'field page title');
-  await sleep(700);
-  await glide(page, sowingTab, 'Sowing tab');
-  await expectVisible(page, page.getByText(/^Sow around May 28/), '"Sow around May 28"');
-  await sleep(1200);
-  const file = await finishRecording(context, page, 'magic');
-  return { file, trim: Math.max(0, (tPaint - t0) / 1000 - 0.15) };
-}
-
-/** The field page → Replay tour. */
-async function recordReplay(browser, base) {
-  const context = await newRecordingContext(browser);
-  const page = await context.newPage();
-  const t0 = Date.now();
-  await page.goto(`${base}/field/${FIELD_ID}?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-  await expectVisible(page, page.locator('[data-place-title]'), 'field page title');
-  const tPaint = Date.now();
-  const replayTab = page.getByRole('tab', { name: /^Replay/ });
-  await expectVisible(page, replayTab, 'Replay tab');
-  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
-  await sleep(900);
-  await glide(page, replayTab, 'Replay tab');
-  await expectVisible(page, page.getByRole('heading', { name: 'How do we know? We replayed 2012.' }), 'replay heading');
-  await expectVisible(page, page.getByText('What really happened · 2012 harvest'), '"What really happened · 2012 harvest"');
-  await sleep(1600);
-  const file = await finishRecording(context, page, 'replay');
-  return { file, trim: Math.max(0, (tPaint - t0) / 1000 - 0.15) };
-}
-
-/* -------------------------------------------------------------------------------------------------- screenshots */
-
-async function takeScreenshots(browser, base) {
-  // The same layout as the clips, captured at exactly 1920×1080 device pixels.
-  const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: OUTPUT_SCALE, reducedMotion: 'reduce', locale: 'en-US', colorScheme: 'light' });
-  const page = await context.newPage();
-  const shot = async (name) => {
-    await sleep(500);
-    const file = join(PUBLIC, name);
-    await page.screenshot({ path: file, scale: 'device', animations: 'disabled' });
-    log(`saved public/${name}`);
-  };
-  await page.goto(`${base}/field/${FIELD_ID}?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-  await expectVisible(page, page.locator('[data-place-title]'), 'field page title');
-  await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
-
-  await page.getByRole('tab', { name: /^Water/ }).click();
-  await expectVisible(page, page.locator('[data-facet="water"]'), 'Water facet');
-  await shot('shot-water.png');
-
-  await page.getByRole('tab', { name: /^Heat/ }).click();
-  await expectVisible(page, page.locator('[data-facet="heat"]'), 'Heat facet');
-  await shot('shot-heat.png');
-
-  await page.getByRole('tab', { name: /^Sowing/ }).click();
-  const money = page.getByRole('heading', { name: 'The price of timing' });
-  await expectVisible(page, money, '"The price of timing"');
-  await money.evaluate((element) => {
-    element.scrollIntoView({ block: 'start' });
-    window.scrollBy(0, -120);
-  });
-  await shot('shot-money.png');
-
-  await page.goto(`${base}/place?${PLACE_QUERY}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-  await expectVisible(page, page.getByRole('navigation', { name: 'Crop' }), 'crop switcher');
-  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
-  await shot('shot-crops.png');
-  await context.close();
+  const webm = join(OUT, 'tour.webm');
+  renameSync(recorded, webm);
+  return { webm, trim: Math.max(0, paintSec - 0.15), steps };
 }
 
 /* ------------------------------------------------------------------------------------------------------- ffmpeg */
 
 /** Trims the blank load frames, scales the recording to 1920×1080 (lanczos), 30 fps, H.264 yuv420p. */
-function encodeClip(input, trimSeconds, outputName) {
-  const output = join(PUBLIC, outputName);
+function encode(input, trimSeconds, output) {
   const args = [
     '-y',
     '-ss', trimSeconds.toFixed(2),
@@ -357,7 +377,7 @@ function encodeClip(input, trimSeconds, outputName) {
   const command = `ffmpeg ${args.map((arg) => (arg.includes(' ') || arg.includes(',') ? `"${arg}"` : arg)).join(' ')}`;
   log(command);
   run('ffmpeg', args, { stdio: ['ignore', 'ignore', 'inherit'] });
-  return { output, command, seconds: probeSeconds(output) };
+  return command;
 }
 
 /* --------------------------------------------------------------------------------------------------------- main */
@@ -377,31 +397,34 @@ async function main() {
   try {
     const target = await resolveTarget(browser);
     server = target.server;
-    log(`filming ${target.base} at a ${VIEWPORT.width}×${VIEWPORT.height} viewport; clips are scaled to ${OUTPUT.width}×${OUTPUT.height} by ffmpeg`);
-
-    const magic = await recordMagic(browser, target.base);
-    log(`magic recorded → ${magic.file} (trim ${magic.trim.toFixed(2)} s)`);
-    const replay = await recordReplay(browser, target.base);
-    log(`replay recorded → ${replay.file} (trim ${replay.trim.toFixed(2)} s)`);
-    await takeScreenshots(browser, target.base);
-
-    const encodedMagic = encodeClip(magic.file, magic.trim, 'clip-magic.mp4');
-    const encodedReplay = encodeClip(replay.file, replay.trim, 'clip-replay.mp4');
-
-    const commands = [encodedMagic.command, encodedReplay.command].join('\n') + '\n';
-    writeFileSync(join(OUT, 'ffmpeg-commands.txt'), commands);
-    const clips = {
+    log(`filming ${target.base} at a ${VIEWPORT.width}×${VIEWPORT.height} viewport; the clip is scaled to ${OUTPUT.width}×${OUTPUT.height} by ffmpeg`);
+    const tour = await recordTour(browser, target.base);
+    const output = join(PUBLIC, 'tour.mp4');
+    const command = encode(tour.webm, tour.trim, output);
+    writeFileSync(join(OUT, 'ffmpeg-commands.txt'), command + '\n');
+    const seconds = probeSeconds(output);
+    const toClip = (sec) => Number(Math.max(0, sec - tour.trim).toFixed(3));
+    const json = {
       target: target.base,
       capturedAt: new Date().toISOString(),
-      magic: { file: 'clip-magic.mp4', seconds: encodedMagic.seconds, trimSeconds: Number(magic.trim.toFixed(2)) },
-      replay: { file: 'clip-replay.mp4', seconds: encodedReplay.seconds, trimSeconds: Number(replay.trim.toFixed(2)) },
+      file: 'tour.mp4',
+      seconds,
+      trimSeconds: Number(tour.trim.toFixed(2)),
+      viewport: VIEWPORT,
+      steps: tour.steps.map((step) => ({
+        id: step.id,
+        startSec: toClip(step.startSec),
+        click: step.click === null ? null : { sec: toClip(step.click.sec), x: Math.round(step.click.x * OUTPUT_SCALE), y: Math.round(step.click.y * OUTPUT_SCALE) },
+      })),
     };
-    writeFileSync(join(PUBLIC, 'clips.json'), JSON.stringify(clips, null, 2) + '\n');
-
+    writeFileSync(join(PUBLIC, 'tour.json'), JSON.stringify(json, null, 2) + '\n');
     log('done');
-    log(`clip-magic.mp4   ${encodedMagic.seconds.toFixed(2)} s`);
-    log(`clip-replay.mp4  ${encodedReplay.seconds.toFixed(2)} s`);
-    log('ffmpeg commands → capture/out/ffmpeg-commands.txt');
+    log(`tour.mp4  ${seconds.toFixed(2)} s`);
+    for (const [index, step] of json.steps.entries()) {
+      const next = json.steps[index + 1];
+      log(`  ${index + 1} ${step.id.padEnd(10)} ${step.startSec.toFixed(2)} s → ${(next ? next.startSec : seconds).toFixed(2)} s  (${((next ? next.startSec : seconds) - step.startSec).toFixed(2)} s)`);
+    }
+    log('ffmpeg command → capture/out/ffmpeg-commands.txt');
   } finally {
     await browser.close();
     if (server !== null) server.kill();
