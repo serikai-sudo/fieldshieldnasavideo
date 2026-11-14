@@ -10,7 +10,7 @@
  *   public/ui/money.png       "The price of timing"
  *   public/ui/crops.png       the crop switcher's eight pills (Wheat … Sorghum)
  *   public/ui/locations.png   Confidence → "Holds across 9 locations …" and its one-line note
- *   public/ui/backtest.png    Confidence → the national back-test card (ρ, p, worst years caught)
+ *   public/ui/backtest.png    Confidence → the national back-test card's statistic block (ρ, p, worst years caught)
  *   public/ui/sources.png     the data-source chips of a place (NASA POWER · SMAP L4 · SRTM 30 m · ESA WorldCover · MODIS NDVI)
  *   public/ui/crops-table.png the eight crops ranked for one place and season (Rudny, 2026)
  *   public/ui/shots.json      each picture's CSS size, so the composition can size its card
@@ -144,7 +144,31 @@ async function main() {
     await dockFor(page, 'confidence', shots);
     await page.locator('[data-facet="confidence"]').waitFor({ state: 'visible' });
     await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 12, true);
-    await shot(page.locator('[data-backtest="national"]'), 'backtest', shots);
+    // The back-test card down to its statistic block (title, ρ, p and the worst years caught, the caveat line): the
+    // locations block under it is already in the strip, and without it the numbers can be shown large.
+    {
+      const card = page.locator('[data-backtest="national"]');
+      await card.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+      await sleep(400);
+      const cardBox = await box(card);
+      const locationsBox = await box(page.locator('[data-backtest-locations]'));
+      // As wide as the text above the locations block really runs (the caveat line is the longest), plus air.
+      const textRight = await card.evaluate((element, limit) => {
+        let right = 0;
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+          if ((node.textContent ?? '').trim() === '') continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          for (const rect of range.getClientRects()) if (rect.bottom <= limit) right = Math.max(right, rect.right);
+        }
+        return right;
+      }, locationsBox.y);
+      const clip = { x: cardBox.x, y: cardBox.y, width: Math.min(cardBox.width, Math.ceil(textRight - cardBox.x + 28)), height: locationsBox.y - cardBox.y - 6 };
+      await page.screenshot({ path: join(UI, 'backtest.png'), clip, animations: 'disabled' });
+      shots['backtest'] = { width: clip.width, height: clip.height };
+      log(`backtest.png  ${clip.width}×${clip.height} css px (statistic block)`);
+    }
 
     // A committed demo point (Rudny district, read from disk): the data-source chips and the eight-crop table.
     await page.goto(`${BASE}/place?lat=52.9880&lon=63.1200&year=2026&name=Rudny`, { waitUntil: 'domcontentloaded', timeout: 90_000 });

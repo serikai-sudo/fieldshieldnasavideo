@@ -10,7 +10,7 @@ import { clamp01, easeOut, fadeIn } from '../lib/anim';
 import { TEXT } from '../script';
 import { fonts, radii, shadow, theme } from '../theme';
 
-const SHOW_WIDTH = 1560;
+const SHOW_WIDTH = 1480;
 
 export const SceneBacktest: React.FC<{ readonly assets: Assets }> = ({ assets }) => {
   const frame = useCurrentFrame();
