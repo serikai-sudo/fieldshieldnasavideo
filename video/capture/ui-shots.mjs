@@ -59,14 +59,22 @@ async function dockFor(page, facet, shots) {
 }
 
 /** A screenshot clipped to the union of `parts` (plus a little air), for elements wider than what they hold. */
-async function shotUnion(page, parts, name, shots, pad = 8) {
+async function shotUnion(page, parts, name, shots, pad = 8, byText = false) {
   const count = await parts.count();
   if (count === 0) throw new Error(`${name}: nothing to frame`);
   await parts.first().scrollIntoViewIfNeeded();
   await sleep(350);
   let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
   for (let i = 0; i < count; i += 1) {
-    const b = await parts.nth(i).boundingBox();
+    // byText: the box of the words themselves (a Range), not of the full-width block that holds them
+    const b = byText
+      ? await parts.nth(i).evaluate((element) => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          const r = range.getBoundingClientRect();
+          return { x: r.left, y: r.top, width: r.width, height: r.height };
+        })
+      : await parts.nth(i).boundingBox();
     if (b === null) continue;
     left = Math.min(left, b.x); top = Math.min(top, b.y); right = Math.max(right, b.x + b.width); bottom = Math.max(bottom, b.y + b.height);
   }
@@ -132,7 +140,7 @@ async function main() {
     await page.getByRole('tab', { name: /^Confidence/ }).click();
     await dockFor(page, 'confidence', shots);
     await page.locator('[data-facet="confidence"]').waitFor({ state: 'visible' });
-    await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 10);
+    await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 12, true);
 
     writeFileSync(join(UI, 'shots.json'), JSON.stringify(shots, null, 2) + '\n');
     log('done → public/ui');
