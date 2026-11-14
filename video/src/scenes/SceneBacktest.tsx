@@ -1,8 +1,8 @@
 /**
- * "Over 33 years it holds out of sample." The real back-test card of the Confidence tab (public/ui/backtest.png:
+ * "…and holds over 33 years." The real back-test card of the Confidence tab (public/ui/backtest.png:
  * ρ = −0.63, p < 0.001, worst years caught) under a brick-red eyebrow, then two rows that land on the spoken words:
- * water alone (ρ −0.63, misses 2012) on "33 years" and water + heat (ρ −0.66, catches 2012) on "holds", each with a bar
- * growing to |ρ|, row 2 stamped "leave-one-out" on "out of sample". The rows come from the app repository's data/skill-heat.json (not yet on the live
+ * water alone (ρ −0.63, misses 2012) on "holds" and water + heat (ρ −0.66, catches 2012) on "33 years", each with a bar
+ * growing to |ρ|, row 2 stamped "leave-one-out" a beat later. The rows come from the app repository's data/skill-heat.json (not yet on the live
  * site), so the source line under them says so. Fallback without the picture: the stamp line as text.
  */
 import type React from 'react';
@@ -88,7 +88,7 @@ export const SceneBacktest: React.FC<{ readonly assets: Assets }> = ({ assets })
   const eyebrowIn = fadeIn(frame, 2, 8);
   const height = size === undefined ? 0 : (size.height * SHOW_WIDTH) / size.width;
   const rowAt = TEXT.backtest.rows.map((row, index) => wordFrame(assets, BACKTEST_LINE_INDEX, row.word, cue + 8 + index * 30) - start);
-  const stampAt = wordFrame(assets, BACKTEST_LINE_INDEX, TEXT.backtest.stamp.word, cue + 80) - start;
+  const stampAt = wordFrame(assets, BACKTEST_LINE_INDEX, TEXT.backtest.stamp.word, cue + 80) - start + TEXT.backtest.stamp.delay;
   const sourceIn = fadeIn(frame, (rowAt[1] ?? 60) + 6, 10);
   return (
     <AbsoluteFill style={{ backgroundColor: theme.paper, alignItems: 'center' }}>

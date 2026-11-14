@@ -20,7 +20,7 @@ export const HEIGHT = 1080;
 /** 29.5 s. */
 export const TOTAL_FRAMES = 885;
 
-export type SceneId = 'intro' | 'problem' | 'blind' | 'click' | 'sowing' | 'money' | 'proof' | 'backtest' | 'close';
+export type SceneId = 'intro' | 'problem' | 'blind' | 'click' | 'facets' | 'sowing' | 'money' | 'proof' | 'backtest' | 'close';
 
 export type SceneSpec = {
   readonly id: SceneId;
@@ -30,17 +30,21 @@ export type SceneSpec = {
   readonly duration: number;
 };
 
-/** The scenes, back to back, summing to TOTAL_FRAMES; one voice line each, sized to its measured take. */
+/**
+ * The scenes, back to back, summing to TOTAL_FRAMES, sized to the measured takes. Two lines span two scenes: the click
+ * line cuts from the map to the tabs on "water", the proof line from the replay to the back-test on "and holds".
+ */
 export const SCENES: readonly SceneSpec[] = [
-  { id: 'intro', from: 0, duration: 67 },
-  { id: 'problem', from: 67, duration: 124 },
-  { id: 'blind', from: 191, duration: 76 },
-  { id: 'click', from: 267, duration: 112 },
-  { id: 'sowing', from: 379, duration: 100 },
-  { id: 'money', from: 479, duration: 98 },
-  { id: 'proof', from: 577, duration: 133 },
-  { id: 'backtest', from: 710, duration: 94 },
-  { id: 'close', from: 804, duration: 81 },
+  { id: 'intro', from: 0, duration: 61 },
+  { id: 'problem', from: 61, duration: 118 },
+  { id: 'blind', from: 179, duration: 72 },
+  { id: 'click', from: 251, duration: 84 },
+  { id: 'facets', from: 335, duration: 56 },
+  { id: 'sowing', from: 391, duration: 96 },
+  { id: 'money', from: 487, duration: 89 },
+  { id: 'proof', from: 576, duration: 127 },
+  { id: 'backtest', from: 703, duration: 63 },
+  { id: 'close', from: 766, duration: 119 },
 ];
 
 export function scene(id: SceneId): SceneSpec {
@@ -86,14 +90,14 @@ export const CLIP_CUTS = {
   click: {
     clip: 'magic',
     anchor: 'nodeClick',
-    lead: 1.5,
+    lead: 1.2,
     sync: { line: 3, word: 'click' },
     rings: ['nodeClick'],
     camera: [
       { when: { event: 'nodeClick' }, target: 'nodeClick', scale: 1.05 },
-      { when: { line: 3, word: 'risk' }, target: 'verdict', scale: 1.16 },
+      { when: { event: 'panelShown' }, target: 'verdict', scale: 1.16 },
     ],
-    marks: [{ when: { line: 3, word: 'risk' }, target: 'verdict', kind: 'box' }],
+    marks: [{ when: { event: 'panelShown' }, target: 'verdict', kind: 'box' }],
   },
   sowing: {
     clip: 'magic',
@@ -163,7 +167,14 @@ export const TEXT = {
   },
   click: {
     placeholder: 'LIVE PLATFORM: the map → Kostanay → the season in one panel',
-    tags: [{ line: 3, word: 'risk', label: 'This season', sub: 'Kostanay 2026 · high caution' }] satisfies readonly Tag[],
+  },
+  /** The tabs named by the click line, each with the top of its real card (crop in CSS px of public/ui/<shot>.png). */
+  facets: {
+    reveals: [
+      { word: 'water', tab: 'water', shot: 'water', crop: 104 },
+      { word: 'heat', tab: 'heat', shot: 'heat', crop: 150 },
+      { word: 'sure', tab: 'confidence', shot: 'confidence', crop: 100 },
+    ],
   },
   sowing: {
     highlight: 'Sow around May 28',
@@ -186,14 +197,16 @@ export const TEXT = {
     /** Shown instead while public/ui/backtest.png is missing. */
     fallback: 'back-tested 1992–2024 · Spearman ρ = −0.63 · p < 0.001',
     rows: [
-      { word: '33', label: 'Water alone', rho: -0.63, note: 'misses 2012', strong: false },
-      { word: 'holds', label: 'Water + heat', rho: -0.66, note: 'catches 2012', strong: true },
+      { word: 'holds', label: 'Water alone', rho: -0.63, note: 'misses 2012', strong: false },
+      { word: '33', label: 'Water + heat', rho: -0.66, note: 'catches 2012', strong: true },
     ],
-    /** Stamped on row 2 on the spoken word: the number is a hold-out one. */
-    stamp: { word: 'out', label: 'leave-one-out' },
+    /** Stamped on row 2 a beat after it lands: the number is a hold-out one. */
+    stamp: { word: '33', delay: 8, label: 'leave-one-out' },
     source: 'National wheat yield 1992–2024 (n = 33, FAOSTAT) · in the app repository: data/skill-heat.json',
   },
   close: {
+    /** Where the map works today, under the silhouette ("For now Northern Kazakhstan"). */
+    region: 'Northern Kazakhstan · for now',
     lead: 'Next:',
     line: 'every rainfed grain belt on Earth',
     url: 'shield-field.vercel.app',
@@ -232,23 +245,23 @@ export type Line = {
  * public/voiceover.mp3 and writes public/words.json (every word's onset), which every reveal follows.
  */
 export const LINES: readonly Line[] = [
-  { from: 2, to: 67, text: 'Hi, I’m Ayaru, from team Innovator.' },
-  { from: 69, to: 191, text: 'The problem: in 2012 drought cut our wheat harvest *in half*.' },
-  { from: 193, to: 267, text: 'Yet sowing is still decided *almost blind*.' },
-  { from: 269, to: 379, text: 'So we built Field Shift: click a field, see its risk.' },
-  { from: 381, to: 479, text: 'Then, for eight crops: *the safest sowing date*.' },
-  { from: 481, to: 577, text: 'The calculator shows what late sowing costs, *in tenge*.' },
-  { from: 579, to: 710, text: 'Does it work? In 2012 it warned *55 days before harvest*.' },
-  { from: 712, to: 804, text: 'Over 33 years it holds *out of sample*.' },
-  { from: 806, to: 885, text: 'Next: *every rainfed grain belt on Earth*.', caption: false },
+  { from: 1, to: 61, text: 'I’m Ayaru, from team Innovator.' },
+  { from: 62, to: 179, text: 'The problem: in 2012 drought cut our wheat harvest *in half*.' },
+  { from: 180, to: 251, text: 'Yet sowing is still decided *almost blind*.' },
+  { from: 252, to: 391, text: 'So we built Field Shift: one click shows water and heat risk, and how sure it is.' },
+  { from: 392, to: 487, text: 'Then, for eight crops: *the safest sowing date*.' },
+  { from: 488, to: 576, text: 'The calculator prices late sowing, *in tenge*.' },
+  { from: 577, to: 766, text: 'Does it work? In 2012 it warned *55 days before harvest*, and holds over 33 years.' },
+  { from: 767, to: 885, text: 'For now Northern Kazakhstan, next: *every rainfed grain belt on Earth*.', caption: false },
 ];
 
 export const INTRO_LINE_INDEX = 0;
 export const PROBLEM_LINE_INDEX = 1;
 export const BLIND_LINE_INDEX = 2;
+export const CLICK_LINE_INDEX = 3;
 export const PROOF_LINE_INDEX = 6;
-export const BACKTEST_LINE_INDEX = 7;
-export const CLOSE_LINE_INDEX = 8;
+export const BACKTEST_LINE_INDEX = 6;
+export const CLOSE_LINE_INDEX = 7;
 
 /** The base pitch of a line's plain words (edge-tts prosody), where it is not the voice's own: the problem, said low. */
 export const LINE_TONE: Readonly<Record<number, string>> = { 1: '-2Hz', 2: '-2Hz' };

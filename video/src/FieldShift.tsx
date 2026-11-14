@@ -1,5 +1,5 @@
 /**
- * The composition: nine scenes back to back (script.ts SCENES), each carrying one voice line over the picture it
+ * The composition: ten scenes back to back (script.ts SCENES), each carrying one voice line over the picture it
  * describes, thrown in and out with whip motion and cut by a brick-red wipe; the voice-over when public/voiceover.mp3
  * exists, and the burned-in captions over everything. Fonts are loaded before the first frame is drawn.
  */
@@ -17,8 +17,9 @@ import { SceneBacktest } from './scenes/SceneBacktest';
 import { SceneBlind } from './scenes/SceneBlind';
 import { QuestionInsert, SceneClip, SowBand } from './scenes/SceneClip';
 import { SceneClose } from './scenes/SceneClose';
+import { SceneInside } from './scenes/SceneInside';
 import { SceneIntro } from './scenes/SceneIntro';
-import { PROOF_LINE_INDEX, TEXT, scene } from './script';
+import { CLICK_LINE_INDEX, PROOF_LINE_INDEX, TEXT, scene } from './script';
 import { fonts, theme } from './theme';
 
 export type FieldShiftProps = { readonly assets: Assets };
@@ -53,12 +54,8 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
         {shell('intro', <SceneIntro assets={assets} />, { inFrames: 0 })}
         {shell('problem', <Scene02Problem assets={assets} />)}
         {shell('blind', <SceneBlind assets={assets} />)}
-        {shell(
-          'click',
-          <SceneClip assets={assets} cut="click" placeholder={TEXT.click.placeholder}>
-            <Tags assets={assets} sceneId="click" tags={TEXT.click.tags} top={118} side={230} />
-          </SceneClip>,
-        )}
+        {shell('click', <SceneClip assets={assets} cut="click" placeholder={TEXT.click.placeholder} />)}
+        {shell('facets', <SceneInside assets={assets} sceneId="facets" lineIndex={CLICK_LINE_INDEX} reveals={TEXT.facets.reveals} />)}
         {shell(
           'sowing',
           <SceneClip assets={assets} cut="sowing" placeholder={TEXT.sowing.placeholder}>

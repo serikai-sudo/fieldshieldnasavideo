@@ -36,17 +36,37 @@
  },
  {
   "word": "55 days",
-  "start": 2.471,
-  "end": 3.434
+  "start": 2.486,
+  "end": 3.523
  },
  {
   "word": "before",
-  "start": 3.434,
-  "end": 3.821
+  "start": 3.523,
+  "end": 3.91
  },
  {
   "word": "harvest",
-  "start": 3.833,
-  "end": 4.446
+  "start": 3.923,
+  "end": 4.511
+ },
+ {
+  "word": "and",
+  "start": 4.587,
+  "end": 4.694
+ },
+ {
+  "word": "holds",
+  "start": 4.754,
+  "end": 5.158
+ },
+ {
+  "word": "over",
+  "start": 5.17,
+  "end": 5.373
+ },
+ {
+  "word": "33 years",
+  "start": 5.385,
+  "end": 6.611
  }
 ]

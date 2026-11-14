@@ -10,7 +10,7 @@
  *
  * Each take is trimmed of leading/trailing silence and loudness-normalised to EBU R128 −16 LUFS with one linear gain
  * (two-pass loudnorm), so the lifted key phrases inside a take stay louder than the rest; its natural pauses are kept. A take that runs longer than its window (next cue − its cue − 0.25 s) is time-stretched, pitch-preserving, by
- * at most 8 %. public/words.json gets every word's onset in composition seconds: cue + (start − trimmed lead) / stretch.
+ * at most 8.5 %. public/words.json gets every word's onset in composition seconds: cue + (start − trimmed lead) / stretch.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -25,8 +25,8 @@ const OUT = join(ROOT, 'public', 'voiceover.mp3');
 const WORDS_OUT = join(ROOT, 'public', 'words.json');
 /** silenceremove keeps this much of the leading silence. */
 const KEPT_LEAD = 0.05;
-const GAP_SECONDS = 0.12;
-const MAX_STRETCH = 1.08;
+const GAP_SECONDS = 0.06;
+const MAX_STRETCH = 1.085;
 const TOTAL_SECONDS = TOTAL_FRAMES / FPS;
 
 function run(args) {
@@ -97,7 +97,7 @@ LINES.forEach((line, index) => {
   let duration = seconds(trimmed);
   let stretch = 1;
   let conditioned = trimmed;
-  // 2. a take longer than its window is stretched (pitch-preserving) by at most 8 %
+  // 2. a take longer than its window is stretched (pitch-preserving) by at most 8.5 %
   if (duration > budget) {
     // 1 % on top: atempo lands a few hundredths long, and the window must hold the whole take.
     stretch = Math.min(MAX_STRETCH, (duration / budget) * 1.01);

@@ -2,56 +2,86 @@
  {
   "word": "So",
   "start": 0,
-  "end": 0.199
+  "end": 0.15
  },
  {
   "word": "we",
-  "start": 0.21,
-  "end": 0.365
+  "start": 0.162,
+  "end": 0.281
  },
  {
   "word": "built",
-  "start": 0.365,
-  "end": 0.591
+  "start": 0.293,
+  "end": 0.507
  },
  {
   "word": "Field",
-  "start": 0.603,
-  "end": 0.913
+  "start": 0.519,
+  "end": 0.828
  },
  {
   "word": "Shift",
-  "start": 0.925,
-  "end": 1.377
+  "start": 0.828,
+  "end": 1.257
+ },
+ {
+  "word": "one",
+  "start": 1.757,
+  "end": 1.947
  },
  {
   "word": "click",
-  "start": 1.841,
-  "end": 1.996
+  "start": 1.959,
+  "end": 2.138
  },
  {
-  "word": "a",
-  "start": 2.008,
-  "end": 2.068
+  "word": "shows",
+  "start": 2.15,
+  "end": 2.448
  },
  {
-  "word": "field",
-  "start": 2.068,
-  "end": 2.532
+  "word": "water",
+  "start": 2.459,
+  "end": 2.924
  },
  {
-  "word": "see",
-  "start": 2.901,
-  "end": 3.068
+  "word": "and",
+  "start": 2.936,
+  "end": 3.031
  },
  {
-  "word": "its",
-  "start": 3.068,
-  "end": 3.21
+  "word": "heat",
+  "start": 3.031,
+  "end": 3.305
  },
  {
   "word": "risk",
-  "start": 3.222,
-  "end": 3.663
+  "start": 3.317,
+  "end": 3.626
+ },
+ {
+  "word": "and",
+  "start": 3.781,
+  "end": 3.888
+ },
+ {
+  "word": "how",
+  "start": 3.9,
+  "end": 4.09
+ },
+ {
+  "word": "sure",
+  "start": 4.09,
+  "end": 4.376
+ },
+ {
+  "word": "it",
+  "start": 4.388,
+  "end": 4.448
+ },
+ {
+  "word": "is",
+  "start": 4.459,
+  "end": 4.852
  }
 ]

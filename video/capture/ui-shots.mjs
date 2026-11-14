@@ -12,6 +12,7 @@
  *   public/ui/locations.png   Confidence → "Holds across 9 locations …" and its one-line note
  *   public/ui/backtest.png    Confidence → the national back-test card's statistic block (ρ, p, worst years caught)
  *   public/ui/sources.png     the data-source chips of a place (NASA POWER · SMAP L4 · SRTM 30 m · ESA WorldCover · MODIS NDVI)
+ *   public/ui/confidence.png  the Confidence tab's first card (risk score, band, uncertainty)
  *   public/ui/crops-table.png the eight crops ranked for one place and season (Rudny, 2026)
  *   public/ui/shots.json      each picture's CSS size, so the composition can size its card
  * Same target rules as capture/tour.mjs (FIELD_SHIFT_URL, HTTPS_PROXY).
@@ -143,6 +144,8 @@ async function main() {
     await page.getByRole('tab', { name: /^Confidence/ }).click();
     await dockFor(page, 'confidence', shots);
     await page.locator('[data-facet="confidence"]').waitFor({ state: 'visible' });
+    // The first card of the Confidence tab: the risk score with its band and uncertainty.
+    await shot(page.locator('[data-facet="confidence"] > *').first(), 'confidence', shots);
     await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 12, true);
     // The back-test card down to its statistic block (title, ρ, p and the worst years caught, the caveat line): the
     // locations block under it is already in the strip, and without it the numbers can be shown large.

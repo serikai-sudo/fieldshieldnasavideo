@@ -1,32 +1,27 @@
 [
  {
-  "word": "Hi",
-  "start": 0,
-  "end": 0.332
- },
- {
   "word": "I’m",
-  "start": 0.367,
-  "end": 0.546
+  "start": 0,
+  "end": 0.116
  },
  {
   "word": "Ayaru",
-  "start": 0.546,
-  "end": 0.891
+  "start": 0.211,
+  "end": 0.592
  },
  {
   "word": "from",
-  "start": 0.962,
-  "end": 1.189
+  "start": 0.819,
+  "end": 1.021
  },
  {
   "word": "team",
-  "start": 1.201,
-  "end": 1.51
+  "start": 1.033,
+  "end": 1.331
  },
  {
   "word": "Innovator",
-  "start": 1.593,
-  "end": 2.129
+  "start": 1.45,
+  "end": 1.997
  }
 ]

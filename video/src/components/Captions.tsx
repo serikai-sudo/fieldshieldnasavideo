@@ -60,7 +60,9 @@ export const Captions: React.FC<{ readonly assets: Assets }> = ({ assets }) => {
         }}
       >
         {segments.map((segment, k) => {
-          const text = (k > 0 ? ' ' : '') + segment.text;
+          // A space between segments, except before punctuation that closes the phrase before it.
+          const gap = k > 0 && !/^[,.;:!?]/.test(segment.text) ? ' ' : '';
+          const text = gap + segment.text;
           if (!segment.emphasis) return <span key={k}>{highlighted(text, String(k))}</span>;
           const first = segment.text.split(' ')[0] ?? '';
           const at = wordFrame(assets, index, first, line.from + 30, 1, 'last');
@@ -68,7 +70,7 @@ export const Captions: React.FC<{ readonly assets: Assets }> = ({ assets }) => {
           const pop = frame < at ? 1 : 1 + 0.08 * Math.sin(Math.PI * t);
           return (
             <span key={k}>
-              {k > 0 ? ' ' : ''}
+              {gap}
               <span style={{ display: 'inline-block', color: theme.accent, fontWeight: 650, transform: `scale(${pop})`, transformOrigin: 'left bottom' }}>{segment.text}</span>
             </span>
           );

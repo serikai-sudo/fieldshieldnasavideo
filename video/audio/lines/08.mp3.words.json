@@ -1,37 +1,57 @@
 [
  {
-  "word": "Over",
-  "start": 0,
-  "end": 0.198
+  "word": "For",
+  "start": 0.059,
+  "end": 0.261
  },
  {
-  "word": "33 years",
-  "start": 0.21,
-  "end": 1.198
+  "word": "now",
+  "start": 0.273,
+  "end": 0.583
  },
  {
-  "word": "it",
-  "start": 1.21,
-  "end": 1.269
+  "word": "Northern",
+  "start": 0.595,
+  "end": 1.012
  },
  {
-  "word": "holds",
-  "start": 1.269,
-  "end": 1.757
+  "word": "Kazakhstan",
+  "start": 1.023,
+  "end": 1.678
  },
  {
-  "word": "out",
-  "start": 1.98,
-  "end": 2.222
+  "word": "next",
+  "start": 1.69,
+  "end": 2.095
  },
  {
-  "word": "of",
-  "start": 2.234,
-  "end": 2.371
+  "word": "every",
+  "start": 2.131,
+  "end": 2.392
  },
  {
-  "word": "sample",
-  "start": 2.384,
-  "end": 3.009
+  "word": "rainfed",
+  "start": 2.405,
+  "end": 2.992
+ },
+ {
+  "word": "grain",
+  "start": 3.005,
+  "end": 3.43
+ },
+ {
+  "word": "belt",
+  "start": 3.442,
+  "end": 3.68
+ },
+ {
+  "word": "on",
+  "start": 3.692,
+  "end": 3.867
+ },
+ {
+  "word": "Earth",
+  "start": 3.867,
+  "end": 4.28
  }
 ]
