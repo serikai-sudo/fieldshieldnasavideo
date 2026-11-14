@@ -6,6 +6,8 @@
  *  - Only these numbers may appear: 16.61 and 7.93 c/ha (national wheat yield 2011 / 2012, FAOSTAT),
  *    1992–2024, Spearman ρ = −0.63, p < 0.001 (data/skill-national.json of the app), and the sowing date
  *    May 28 (data/snapshots/sowing/kostanay-01.json cvarOptimal 05-28). Nothing else is invented.
+ *    The feature strip adds two counts: 8 crops (CROP_ORDER in the app's src/lib/model/crops.ts) and 9 locations
+ *    (data/skill-national.json perLocationSummary.count).
  *  - No "forecast", "predict", "flood", "real-time". English only.
  */
 
@@ -15,7 +17,7 @@ export const HEIGHT = 1080;
 /** 29.5 s. */
 export const TOTAL_FRAMES = 885;
 
-export type SceneId = 'title' | 'problem' | 'logo' | 'magic' | 'validation';
+export type SceneId = 'title' | 'problem' | 'logo' | 'inside' | 'magic' | 'validation';
 
 export type SceneSpec = {
   readonly id: SceneId;
@@ -25,11 +27,12 @@ export type SceneSpec = {
   readonly duration: number;
 };
 
-/** The five scenes, back to back, summing to TOTAL_FRAMES. */
+/** The six scenes, back to back, summing to TOTAL_FRAMES. The live clip and the validation beat never move. */
 export const SCENES: readonly SceneSpec[] = [
   { id: 'title', from: 0, duration: 60 },        // 0.0 – 2.0 s
-  { id: 'problem', from: 60, duration: 90 },     // 2.0 – 5.0 s
-  { id: 'logo', from: 150, duration: 150 },      // 5.0 – 10.0 s
+  { id: 'problem', from: 60, duration: 60 },     // 2.0 – 4.0 s
+  { id: 'logo', from: 120, duration: 90 },       // 4.0 – 7.0 s
+  { id: 'inside', from: 210, duration: 90 },     // 7.0 – 10.0 s  "Inside Field Shift" feature strip
   { id: 'magic', from: 300, duration: 300 },     // 10.0 – 20.0 s
   { id: 'validation', from: 600, duration: 285 },// 20.0 – 29.5 s
 ];
@@ -79,6 +82,20 @@ export const TEXT = {
     region: 'Northern Kazakhstan · spring-wheat belt',
   },
   tagline: 'NASA Earth data → field-level climate risk',
+  inside: {
+    title: 'Inside Field Shift',
+    /** Eight honest chips: what the platform holds beyond the core loop. Wheat alone is checked against yield. */
+    chips: [
+      'Water balance · FAO-56',
+      'Heat × drought · compound',
+      'Sowing window · CVaR',
+      'Price of timing · economic',
+      '8 crops',
+      'Confidence · uncertainty',
+      '9-location robustness',
+      'Analogs · leave-one-out',
+    ],
+  },
   magic: {
     pills: ['NASA POWER', 'SMAP', 'MODIS'],
     highlight: 'Sow around May 28',
@@ -107,22 +124,28 @@ export type Line = {
   readonly to: number;
   /** Spoken and burned in as the subtitle; keep to two lines at 34 px over ~1200 px. */
   readonly text: string;
+  /** false: a caption only — its message is already on screen as the tagline chip, so the voice pauses there. */
+  readonly spoken?: boolean;
+  /** The frame the spoken take must end by, when earlier than the next spoken cue (an unspoken caption follows). */
+  readonly spokenUntil?: number;
 };
 
 /**
- * The voice-over, line by line, with the frames its subtitle is on screen. Record voiceover.mp3 to these cues
- * (seconds = frame / 30). Each line is also the burned-in English subtitle.
+ * The voice-over, line by line, with the frames its subtitle is on screen (seconds = frame / 30). Each line is also
+ * the burned-in English subtitle. The spoken takes live in audio/lines/<NN>.mp3 (one per line, in this order) and
+ * `pnpm voiceover` places each at its `from` cue to build public/voiceover.mp3; `to` follows the measured take.
+ * p < 0.001 is on the rigor stamp, not spoken: it does not fit the 3.5 s slot.
  */
 export const LINES: readonly Line[] = [
-  { from: 6, to: 54, text: 'Field Shift.' },
-  { from: 66, to: 150, text: 'In 2012, drought cut Kazakhstan’s national wheat yield by about half.' },
-  { from: 156, to: 294, text: 'Field Shift turns NASA Earth data into field-level climate risk, read season by season.' },
-  { from: 306, to: 420, text: 'Pick a field on the live map. This season reads high caution.' },
-  { from: 420, to: 594, text: 'The decision: sow around May 28 — the steadiest harvest even in a bad year.' },
-  { from: 606, to: 696, text: 'How do we know? We replayed 2012 day by day — the model flagged high caution before harvest.' },
-  { from: 696, to: 738, text: 'Back-tested 1992 to 2024: Spearman rho −0.63, p below 0.001.' },
-  { from: 738, to: 810, text: 'Water, heat, the price of timing, crop by crop.' },
-  { from: 810, to: 879, text: 'shield-field.vercel.app — next: every rainfed grain belt on Earth.' },
+  { from: 6, to: 53, text: 'Field Shift.' },
+  { from: 63, to: 161, text: 'In 2012, drought cut Kazakhstan’s wheat yield by about half.', spokenUntil: 168 },
+  { from: 162, to: 210, text: 'Field Shift turns NASA Earth data into field-level climate risk, season by season.', spoken: false },
+  { from: 210, to: 315, text: 'Inside: water, heat, sowing, economics, eight crops, nine-location robustness.' },
+  { from: 318, to: 435, text: 'Pick a field on the live map. This season reads high caution.' },
+  { from: 456, to: 588, text: 'The decision: sow around May 28 — the steadiest harvest, even in a bad year.' },
+  { from: 597, to: 695, text: 'We replayed 2012: high caution, flagged before harvest.' },
+  { from: 699, to: 805, text: 'Back-tested 1992 to 2024: rho minus 0.63.' },
+  { from: 813, to: 881, text: 'Next: every rainfed grain belt on Earth.' },
 ];
 
 /** The caption on screen at a composition frame, if any. */

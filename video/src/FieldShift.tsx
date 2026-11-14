@@ -1,5 +1,5 @@
 /**
- * The composition: five scenes back to back (script.ts SCENES), the voice-over when public/voiceover.mp3 exists, and
+ * The composition: six scenes back to back (script.ts SCENES), the voice-over when public/voiceover.mp3 exists, and
  * the burned-in captions over everything. Fonts are loaded before the first frame is drawn.
  */
 import type React from 'react';
@@ -12,6 +12,7 @@ import { Scene01Title } from './scenes/Scene01Title';
 import { Scene02Problem } from './scenes/Scene02Problem';
 import { Scene03Logo } from './scenes/Scene03Logo';
 import { Scene04Magic } from './scenes/Scene04Magic';
+import { SceneInside } from './scenes/SceneInside';
 import { Scene05Validation } from './scenes/Scene05Validation';
 import { scene } from './script';
 import { fonts, theme } from './theme';
@@ -43,6 +44,9 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
         </Series.Sequence>
         <Series.Sequence durationInFrames={scene('logo').duration}>
           <Scene03Logo />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={scene('inside').duration}>
+          <SceneInside />
         </Series.Sequence>
         <Series.Sequence durationInFrames={scene('magic').duration} premountFor={20}>
           <Scene04Magic assets={assets} />

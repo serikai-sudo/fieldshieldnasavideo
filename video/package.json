@@ -9,7 +9,8 @@
     "render": "remotion render FieldShift out/field-shift.mp4",
     "fonts": "node scripts/copy-fonts.mjs",
     "postinstall": "node scripts/copy-fonts.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "voiceover": "node --experimental-strip-types audio/build-voiceover.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.543",

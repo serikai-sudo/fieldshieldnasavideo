@@ -13,3 +13,7 @@ public/*.mp4
 public/*.webm
 public/*.mp3
 public/clips.json
+
+# the assembled AI voice-over is a committed deliverable; its scratch renders are not
+!public/voiceover.mp3
+audio/work/

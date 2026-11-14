@@ -1,5 +1,5 @@
 /**
- * S2 · 2–5 s: the statement at the top, the silhouette of Northern Kazakhstan (ink-2) on the left, and on the right a
+ * S2 · 2–4 s: the statement at the top, the silhouette of Northern Kazakhstan (ink-2) on the left, and on the right a
  * two-bar chart — the 2011 harvest, then the 2012 bar collapsing from that height to its own. Only the two recorded
  * yields appear: 16.61 and 7.93 c/ha (FAOSTAT). The 2012 figure fades in after the collapse, so no intermediate number
  * is ever on screen.
@@ -38,25 +38,25 @@ function barHeight(value: number): number {
 export const Scene02Problem: React.FC = () => {
   const frame = useCurrentFrame();
   const sceneIn = fadeIn(frame, 0, 8);
-  const headIn = fadeIn(frame, 4, 14);
-  const mapIn = fadeIn(frame, 8, 20);
-  const coreIn = fadeIn(frame, 18, 16);
-  const dotIn = fadeIn(frame, 26, 10);
+  const headIn = fadeIn(frame, 2, 10);
+  const mapIn = fadeIn(frame, 4, 12);
+  const coreIn = fadeIn(frame, 10, 12);
+  const dotIn = fadeIn(frame, 16, 8);
 
   const good = TEXT.problem.bars[0];
   const drought = TEXT.problem.bars[1];
   if (good === undefined || drought === undefined) return null;
 
-  // 2011 rises 8–28; 2012 appears at the 2011 height on 30 and collapses to its own height over 32–54.
-  const goodRise = easeOut(fadeIn(frame, 8, 20));
-  const collapse = easeInOut(fadeIn(frame, 32, 22));
-  const droughtVisible = frame >= 30;
+  // 60-frame scene: 2011 rises 6–20; 2012 appears at the 2011 height on 22 and collapses to its own height over 24–42.
+  const goodRise = easeOut(fadeIn(frame, 6, 14));
+  const collapse = easeInOut(fadeIn(frame, 24, 18));
+  const droughtVisible = frame >= 22;
   const droughtH = barHeight(good.value) + (barHeight(drought.value) - barHeight(good.value)) * collapse;
-  const droughtNumberIn = fadeIn(frame, 52, 8);
-  const chipIn = fadeIn(frame, 56, 10);
+  const droughtNumberIn = fadeIn(frame, 42, 6);
+  const chipIn = fadeIn(frame, 46, 8);
 
   const bars = [
-    { year: good.year, h: barHeight(good.value) * goodRise, color: theme.ink2, number: good.value.toFixed(2), numberOpacity: fadeIn(frame, 24, 8), x: CHART_X },
+    { year: good.year, h: barHeight(good.value) * goodRise, color: theme.ink2, number: good.value.toFixed(2), numberOpacity: fadeIn(frame, 18, 6), x: CHART_X },
     { year: drought.year, h: droughtVisible ? droughtH : 0, color: theme.risk.high, number: drought.value.toFixed(2), numberOpacity: droughtNumberIn, x: CHART_X + BAR_W + BAR_GAP },
   ];
 
