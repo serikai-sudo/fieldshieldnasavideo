@@ -11,10 +11,26 @@ export type ClipInfo = {
   readonly seconds: number | null;
 };
 
+export type Box = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
+export type Size = { readonly width: number; readonly height: number };
+
+/** The real field-page pictures of the strip scene (capture/ui-shots.mjs); null while public/ui/ is missing. */
+export type UiAssets = {
+  /** The tab bar's CSS size and each tab's box inside it. */
+  readonly dock: Size & { readonly tabs: Readonly<Record<string, Box>> };
+  /** Each picture's CSS size (the PNGs are twice as large: device scale 2). */
+  readonly shots: Readonly<Record<string, Size>>;
+} | null;
+
+/** Every spoken word's onset in composition seconds, per line (public/words.json, written by pnpm voiceover). */
+export type WordTimings = readonly { readonly line: number; readonly words: readonly { readonly word: string; readonly at: number }[] }[] | null;
+
 export type Assets = {
   readonly magic: ClipInfo;
   readonly replay: ClipInfo;
   readonly voiceover: boolean;
+  readonly ui: UiAssets;
+  readonly words: WordTimings;
   /** Keyed by file name (TEXT.validation.strip[].file). */
   readonly shots: Readonly<Record<string, boolean>>;
 };
@@ -27,6 +43,8 @@ export const NO_ASSETS: Assets = {
   magic: { exists: false, seconds: null },
   replay: { exists: false, seconds: null },
   voiceover: false,
+  ui: null,
+  words: null,
   shots: Object.fromEntries(TEXT.validation.strip.map((shot) => [shot.file, false])),
 };
 
@@ -57,12 +75,43 @@ async function readClipsJson(): Promise<ClipsJson> {
   }
 }
 
+/** A JSON file from public/, or null when it is missing or not JSON. */
+async function readJson(name: string): Promise<unknown> {
+  try {
+    const response = await fetch(staticFile(name), { cache: 'no-store' });
+    if (!response.ok) return null;
+    if ((response.headers.get('content-type') ?? '').includes('text/html')) return null;
+    return (await response.json()) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function isRecord(x: unknown): x is Record<string, unknown> {
+  return typeof x === 'object' && x !== null && !Array.isArray(x);
+}
+
+async function readUi(): Promise<UiAssets> {
+  const [dock, shots] = await Promise.all([readJson('ui/dock.json'), readJson('ui/shots.json')]);
+  if (!isRecord(dock) || !isRecord(shots) || !isRecord(dock['tabs'])) return null;
+  if (typeof dock['width'] !== 'number' || typeof dock['height'] !== 'number') return null;
+  return { dock: dock as unknown as NonNullable<UiAssets>['dock'], shots: shots as unknown as NonNullable<UiAssets>['shots'] };
+}
+
+async function readWords(): Promise<WordTimings> {
+  const parsed = await readJson('words.json');
+  if (!isRecord(parsed) || !Array.isArray(parsed['lines'])) return null;
+  return parsed['lines'] as unknown as WordTimings;
+}
+
 export async function probeAssets(): Promise<Assets> {
-  const [magic, replay, voiceover, clips, ...shots] = await Promise.all([
+  const [magic, replay, voiceover, clips, ui, words, ...shots] = await Promise.all([
     fileExists(CLIP_FILES.magic),
     fileExists(CLIP_FILES.replay),
     fileExists(VOICEOVER_FILE),
     readClipsJson(),
+    readUi(),
+    readWords(),
     ...TEXT.validation.strip.map((shot) => fileExists(shot.file)),
   ]);
   const seconds = (key: keyof typeof CLIP_FILES): number | null => {
@@ -73,6 +122,8 @@ export async function probeAssets(): Promise<Assets> {
     magic: { exists: magic, seconds: seconds('magic') },
     replay: { exists: replay, seconds: seconds('replay') },
     voiceover,
+    ui,
+    words,
     shots: Object.fromEntries(TEXT.validation.strip.map((shot, index) => [shot.file, shots[index] ?? false])),
   };
 }

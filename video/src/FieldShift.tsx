@@ -46,7 +46,7 @@ export const FieldShift: React.FC<FieldShiftProps> = ({ assets }) => {
           <Scene03Logo />
         </Series.Sequence>
         <Series.Sequence durationInFrames={scene('inside').duration}>
-          <SceneInside />
+          <SceneInside assets={assets} />
         </Series.Sequence>
         <Series.Sequence durationInFrames={scene('magic').duration} premountFor={20}>
           <Scene04Magic assets={assets} />

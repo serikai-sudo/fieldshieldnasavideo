@@ -1,0 +1,37 @@
+[
+ {
+  "word": "We",
+  "start": 0.1,
+  "end": 0.275
+ },
+ {
+  "word": "replayed",
+  "start": 0.287,
+  "end": 0.712
+ },
+ {
+  "word": "2012",
+  "start": 0.725,
+  "end": 1.7
+ },
+ {
+  "word": "high",
+  "start": 1.9,
+  "end": 2.062
+ },
+ {
+  "word": "caution",
+  "start": 2.075,
+  "end": 2.513
+ },
+ {
+  "word": "before",
+  "start": 2.525,
+  "end": 2.837
+ },
+ {
+  "word": "harvest",
+  "start": 2.85,
+  "end": 3.5
+ }
+]

@@ -2,15 +2,17 @@
   "name": "field-shift-video",
   "version": "0.1.0",
   "private": true,
-  "description": "Field Shift — 30 s NASA Space Apps demo video: Playwright films the live platform, Remotion composites it.",
+  "description": "Field Shift \u2014 30 s NASA Space Apps demo video: Playwright films the live platform, Remotion composites it.",
   "scripts": {
-    "capture": "node capture/tour.mjs",
+    "capture": "node capture/tour.mjs && node capture/ui-shots.mjs",
     "studio": "remotion studio",
     "render": "remotion render FieldShift out/field-shift.mp4 && node scripts/tidy-duration.mjs out/field-shift.mp4",
     "fonts": "node scripts/copy-fonts.mjs",
     "postinstall": "node scripts/copy-fonts.mjs",
     "typecheck": "tsc --noEmit",
-    "voiceover": "node --experimental-strip-types audio/build-voiceover.mjs"
+    "voiceover": "node --experimental-strip-types audio/build-voiceover.mjs",
+    "shots": "node capture/ui-shots.mjs",
+    "voiceover:tts": "node --experimental-strip-types audio/tts.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.543",

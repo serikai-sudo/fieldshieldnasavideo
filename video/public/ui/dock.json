@@ -1,0 +1,42 @@
+{
+  "width": 599,
+  "height": 50,
+  "tabs": {
+    "overview": {
+      "x": 5,
+      "y": 5,
+      "width": 108,
+      "height": 40
+    },
+    "water": {
+      "x": 115,
+      "y": 5,
+      "width": 86,
+      "height": 40
+    },
+    "heat": {
+      "x": 203,
+      "y": 5,
+      "width": 78,
+      "height": 40
+    },
+    "sowing": {
+      "x": 283,
+      "y": 5,
+      "width": 95,
+      "height": 40
+    },
+    "replay": {
+      "x": 380,
+      "y": 5,
+      "width": 91,
+      "height": 40
+    },
+    "confidence": {
+      "x": 473,
+      "y": 5,
+      "width": 121,
+      "height": 40
+    }
+  }
+}

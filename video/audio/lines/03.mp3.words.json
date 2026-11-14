@@ -1,0 +1,47 @@
+[
+ {
+  "word": "Inside",
+  "start": 0.1,
+  "end": 0.7
+ },
+ {
+  "word": "water",
+  "start": 0.875,
+  "end": 1.288
+ },
+ {
+  "word": "heat",
+  "start": 1.5,
+  "end": 1.8
+ },
+ {
+  "word": "sowing",
+  "start": 1.975,
+  "end": 2.438
+ },
+ {
+  "word": "economics",
+  "start": 2.55,
+  "end": 3.262
+ },
+ {
+  "word": "eight",
+  "start": 3.425,
+  "end": 3.587
+ },
+ {
+  "word": "crops",
+  "start": 3.6,
+  "end": 4.088
+ },
+ {
+  "word": "nine-location",
+  "start": 4.263,
+  "end": 5.0
+ },
+ {
+  "word": "robustness",
+  "start": 5.013,
+  "end": 5.85
+ }
+]

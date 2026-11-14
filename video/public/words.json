@@ -1,0 +1,249 @@
+{
+ "voice": "en-US-JennyNeural (edge-tts)",
+ "lines": [
+  {
+   "line": 0,
+   "words": [
+    {
+     "word": "Field",
+     "at": 0.1
+    },
+    {
+     "word": "Shift",
+     "at": 0.423
+    }
+   ]
+  },
+  {
+   "line": 1,
+   "words": [
+    {
+     "word": "In 2012",
+     "at": 1.167
+    },
+    {
+     "word": "drought",
+     "at": 2.417
+    },
+    {
+     "word": "halved",
+     "at": 2.704
+    },
+    {
+     "word": "wheat",
+     "at": 2.966
+    },
+    {
+     "word": "yields",
+     "at": 3.192
+    }
+   ]
+  },
+  {
+   "line": 2,
+   "words": [
+    {
+     "word": "Inside",
+     "at": 4.233
+    },
+    {
+     "word": "water",
+     "at": 4.946
+    },
+    {
+     "word": "heat",
+     "at": 5.571
+    },
+    {
+     "word": "sowing",
+     "at": 6.046
+    },
+    {
+     "word": "economics",
+     "at": 6.621
+    },
+    {
+     "word": "eight",
+     "at": 7.496
+    },
+    {
+     "word": "crops",
+     "at": 7.671
+    },
+    {
+     "word": "nine-location",
+     "at": 8.334
+    },
+    {
+     "word": "robustness",
+     "at": 9.084
+    }
+   ]
+  },
+  {
+   "line": 3,
+   "words": [
+    {
+     "word": "Pick",
+     "at": 10.4
+    },
+    {
+     "word": "a",
+     "at": 10.572
+    },
+    {
+     "word": "field",
+     "at": 10.659
+    },
+    {
+     "word": "This",
+     "at": 12.059
+    },
+    {
+     "word": "season",
+     "at": 12.309
+    },
+    {
+     "word": "reads",
+     "at": 12.672
+    },
+    {
+     "word": "high",
+     "at": 12.897
+    },
+    {
+     "word": "caution",
+     "at": 13.072
+    }
+   ]
+  },
+  {
+   "line": 4,
+   "words": [
+    {
+     "word": "The",
+     "at": 15.2
+    },
+    {
+     "word": "decision",
+     "at": 15.281
+    },
+    {
+     "word": "sow",
+     "at": 16.044
+    },
+    {
+     "word": "around",
+     "at": 16.306
+    },
+    {
+     "word": "May 28",
+     "at": 16.631
+    },
+    {
+     "word": "the",
+     "at": 17.694
+    },
+    {
+     "word": "steadiest",
+     "at": 17.807
+    },
+    {
+     "word": "harvest",
+     "at": 18.307
+    }
+   ]
+  },
+  {
+   "line": 5,
+   "words": [
+    {
+     "word": "We",
+     "at": 20
+    },
+    {
+     "word": "replayed",
+     "at": 20.127
+    },
+    {
+     "word": "2012",
+     "at": 20.565
+    },
+    {
+     "word": "high",
+     "at": 21.74
+    },
+    {
+     "word": "caution",
+     "at": 21.915
+    },
+    {
+     "word": "before",
+     "at": 22.365
+    },
+    {
+     "word": "harvest",
+     "at": 22.69
+    }
+   ]
+  },
+  {
+   "line": 6,
+   "words": [
+    {
+     "word": "Back-tested",
+     "at": 23.7
+    },
+    {
+     "word": "against",
+     "at": 24.297
+    },
+    {
+     "word": "national",
+     "at": 24.672
+    },
+    {
+     "word": "wheat",
+     "at": 25.148
+    },
+    {
+     "word": "yields",
+     "at": 25.36
+    }
+   ]
+  },
+  {
+   "line": 7,
+   "words": [
+    {
+     "word": "Next",
+     "at": 26.7
+    },
+    {
+     "word": "every",
+     "at": 27.309
+    },
+    {
+     "word": "rainfed",
+     "at": 27.571
+    },
+    {
+     "word": "grain",
+     "at": 28.059
+    },
+    {
+     "word": "belt",
+     "at": 28.409
+    },
+    {
+     "word": "on",
+     "at": 28.684
+    },
+    {
+     "word": "Earth",
+     "at": 28.809
+    }
+   ]
+  }
+ ]
+}

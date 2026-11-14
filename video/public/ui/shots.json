@@ -1,0 +1,50 @@
+{
+  "dock-overview": {
+    "width": 599,
+    "height": 50
+  },
+  "crops": {
+    "width": 1060,
+    "height": 34
+  },
+  "dock-water": {
+    "width": 599,
+    "height": 50
+  },
+  "water": {
+    "width": 1060,
+    "height": 256
+  },
+  "dock-heat": {
+    "width": 599,
+    "height": 50
+  },
+  "heat": {
+    "width": 1060,
+    "height": 356
+  },
+  "dock-sowing": {
+    "width": 599,
+    "height": 50
+  },
+  "sowing": {
+    "width": 1060,
+    "height": 470
+  },
+  "money": {
+    "width": 542,
+    "height": 287
+  },
+  "dock-replay": {
+    "width": 599,
+    "height": 50
+  },
+  "dock-confidence": {
+    "width": 599,
+    "height": 50
+  },
+  "locations": {
+    "width": 1010,
+    "height": 95
+  }
+}

@@ -29,10 +29,10 @@ export type SceneSpec = {
 
 /** The six scenes, back to back, summing to TOTAL_FRAMES. The live clip and the validation beat never move. */
 export const SCENES: readonly SceneSpec[] = [
-  { id: 'title', from: 0, duration: 60 },        // 0.0 – 2.0 s
-  { id: 'problem', from: 60, duration: 60 },     // 2.0 – 4.0 s
-  { id: 'logo', from: 120, duration: 90 },       // 4.0 – 7.0 s
-  { id: 'inside', from: 210, duration: 90 },     // 7.0 – 10.0 s  "Inside Field Shift" feature strip
+  { id: 'title', from: 0, duration: 36 },        // 0.0 – 1.2 s
+  { id: 'problem', from: 36, duration: 60 },     // 1.2 – 3.2 s
+  { id: 'logo', from: 96, duration: 30 },        // 3.2 – 4.2 s
+  { id: 'inside', from: 126, duration: 174 },    // 4.2 – 10.0 s  "Inside Field Shift": the real tab bar, word by word
   { id: 'magic', from: 300, duration: 300 },     // 10.0 – 20.0 s
   { id: 'validation', from: 600, duration: 285 },// 20.0 – 29.5 s
 ];
@@ -84,7 +84,20 @@ export const TEXT = {
   tagline: 'NASA Earth data → field-level climate risk',
   inside: {
     title: 'Inside Field Shift',
-    /** Eight honest chips: what the platform holds beyond the core loop. Wheat alone is checked against yield. */
+    /**
+     * What each spoken word of the strip line brings up: the real tab bar with that tab active (public/ui/dock-<tab>.png)
+     * and the real piece of the field page it names (public/ui/<shot>.png). `word` is matched against the start of the
+     * spoken word in public/words.json; `tab: null` keeps the tab bar as it was.
+     */
+    reveals: [
+      { word: 'water', tab: 'water', shot: 'water' },
+      { word: 'heat', tab: 'heat', shot: 'heat' },
+      { word: 'sowing', tab: 'sowing', shot: 'sowing' },
+      { word: 'economics', tab: 'sowing', shot: 'money' },
+      { word: 'crops', tab: null, shot: 'crops' },
+      { word: 'nine', tab: 'confidence', shot: 'locations' },
+    ],
+    /** Shown instead, as plain chips, while public/ui/ is missing. */
     chips: [
       'Water balance · FAO-56',
       'Heat × drought · compound',
@@ -124,7 +137,7 @@ export type Line = {
   readonly to: number;
   /** Spoken and burned in as the subtitle; keep to two lines at 34 px over ~1200 px. */
   readonly text: string;
-  /** false: a caption only — its message is already on screen as the tagline chip, so the voice pauses there. */
+  /** false: a caption only; the voice pauses there. */
   readonly spoken?: boolean;
   /** The frame the spoken take must end by, when earlier than the next spoken cue (an unspoken caption follows). */
   readonly spokenUntil?: number;
@@ -132,21 +145,25 @@ export type Line = {
 
 /**
  * The voice-over, line by line, with the frames its subtitle is on screen (seconds = frame / 30). Each line is also
- * the burned-in English subtitle. The spoken takes live in audio/lines/<NN>.mp3 (one per line, in this order) and
- * `pnpm voiceover` places each at its `from` cue to build public/voiceover.mp3; `to` follows the measured take.
- * p < 0.001 is on the rigor stamp, not spoken: it does not fit the 3.5 s slot.
+ * the burned-in English subtitle. `pnpm voiceover:tts` speaks every line with the free Microsoft neural voice
+ * (edge-tts, en-US-JennyNeural, natural pace) into audio/lines/<NN>.mp3 plus its word timings; `pnpm voiceover` places
+ * each take at its `from` cue to build public/voiceover.mp3 and writes public/words.json (every word's onset in
+ * composition seconds), which the strip scene reveals the tabs by. `to` follows the measured take.
+ * 1992–2024, ρ = −0.63 and p < 0.001 are on the rigor stamp, not spoken.
  */
 export const LINES: readonly Line[] = [
-  { from: 6, to: 53, text: 'Field Shift.' },
-  { from: 63, to: 161, text: 'In 2012, drought cut Kazakhstan’s wheat yield by about half.', spokenUntil: 168 },
-  { from: 162, to: 210, text: 'Field Shift turns NASA Earth data into field-level climate risk, season by season.', spoken: false },
-  { from: 210, to: 315, text: 'Inside: water, heat, sowing, economics, eight crops, nine-location robustness.' },
-  { from: 318, to: 435, text: 'Pick a field on the live map. This season reads high caution.' },
-  { from: 456, to: 588, text: 'The decision: sow around May 28 — the steadiest harvest, even in a bad year.' },
-  { from: 597, to: 695, text: 'We replayed 2012: high caution, flagged before harvest.' },
-  { from: 699, to: 805, text: 'Back-tested 1992 to 2024: rho minus 0.63.' },
-  { from: 813, to: 881, text: 'Next: every rainfed grain belt on Earth.' },
+  { from: 3, to: 34, text: 'Field Shift.' },
+  { from: 35, to: 121, text: 'In 2012, drought halved wheat yields.' },
+  { from: 127, to: 306, text: 'Inside: water, heat, sowing, economics, eight crops, nine-location robustness.' },
+  { from: 312, to: 419, text: 'Pick a field. This season reads high caution.' },
+  { from: 456, to: 577, text: 'The decision: sow around May 28 — the steadiest harvest.' },
+  { from: 600, to: 708, text: 'We replayed 2012: high caution before harvest.' },
+  { from: 711, to: 786, text: 'Back-tested against national wheat yields.' },
+  { from: 801, to: 882, text: 'Next: every rainfed grain belt on Earth.' },
 ];
+
+/** The line the strip scene reveals the tabs by. */
+export const INSIDE_LINE_INDEX = 2;
 
 /** The caption on screen at a composition frame, if any. */
 export function lineAt(frame: number): Line | undefined {

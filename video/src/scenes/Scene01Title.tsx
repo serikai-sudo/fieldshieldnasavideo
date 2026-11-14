@@ -1,4 +1,4 @@
-/** S1 · 0–2 s: paper, the mark draws in, FIELD SHIFT in Fraunces, the byline. */
+/** S1 · 0–1.2 s: paper, the mark draws in, FIELD SHIFT in Fraunces, the byline. */
 import type React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
 import { BrandMark } from '../components/BrandMark';
@@ -8,9 +8,9 @@ import { fonts, theme } from '../theme';
 
 export const Scene01Title: React.FC = () => {
   const frame = useCurrentFrame();
-  const markProgress = interpolate(frame, [0, 34], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const titleIn = fadeIn(frame, 12, 16);
-  const bylineIn = fadeIn(frame, 26, 14);
+  const markProgress = interpolate(frame, [0, 22], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const titleIn = fadeIn(frame, 4, 12);
+  const bylineIn = fadeIn(frame, 12, 10);
   return (
     <AbsoluteFill style={{ backgroundColor: theme.paper, alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28, transform: 'translateY(-24px)' }}>

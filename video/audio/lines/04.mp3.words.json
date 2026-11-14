@@ -1,0 +1,42 @@
+[
+ {
+  "word": "Pick",
+  "start": 0.1,
+  "end": 0.312
+ },
+ {
+  "word": "a",
+  "start": 0.325,
+  "end": 0.4
+ },
+ {
+  "word": "field",
+  "start": 0.412,
+  "end": 0.95
+ },
+ {
+  "word": "This",
+  "start": 1.812,
+  "end": 2.05
+ },
+ {
+  "word": "season",
+  "start": 2.062,
+  "end": 2.413
+ },
+ {
+  "word": "reads",
+  "start": 2.425,
+  "end": 2.637
+ },
+ {
+  "word": "high",
+  "start": 2.65,
+  "end": 2.812
+ },
+ {
+  "word": "caution",
+  "start": 2.825,
+  "end": 3.425
+ }
+]
