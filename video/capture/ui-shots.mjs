@@ -10,6 +10,9 @@
  *   public/ui/money.png       "The price of timing"
  *   public/ui/crops.png       the crop switcher's eight pills (Wheat … Sorghum)
  *   public/ui/locations.png   Confidence → "Holds across 9 locations …" and its one-line note
+ *   public/ui/backtest.png    Confidence → the national back-test card (ρ, p, worst years caught)
+ *   public/ui/sources.png     the data-source chips of a place (NASA POWER · SMAP L4 · SRTM 30 m · ESA WorldCover · MODIS NDVI)
+ *   public/ui/crops-table.png the eight crops ranked for one place and season (Rudny, 2026)
  *   public/ui/shots.json      each picture's CSS size, so the composition can size its card
  * Same target rules as capture/tour.mjs (FIELD_SHIFT_URL, HTTPS_PROXY).
  */
@@ -141,6 +144,15 @@ async function main() {
     await dockFor(page, 'confidence', shots);
     await page.locator('[data-facet="confidence"]').waitFor({ state: 'visible' });
     await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 12, true);
+    await shot(page.locator('[data-backtest="national"]'), 'backtest', shots);
+
+    // A committed demo point (Rudny district, read from disk): the data-source chips and the eight-crop table.
+    await page.goto(`${BASE}/place?lat=52.9880&lon=63.1200&year=2026&name=Rudny`, { waitUntil: 'domcontentloaded', timeout: 90_000 });
+    await page.locator('[data-crop-comparison="2026"]').waitFor({ state: 'visible', timeout: 90_000 });
+    await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await page.mouse.move(0, 0);
+    await shot(page.locator('[data-satellite-plate="chips"]').first(), 'sources', shots);
+    await shot(page.locator('[data-crop-comparison="2026"]'), 'crops-table', shots);
 
     writeFileSync(join(UI, 'shots.json'), JSON.stringify(shots, null, 2) + '\n');
     log('done → public/ui');

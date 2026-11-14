@@ -1,7 +1,7 @@
 /**
  * Design tokens of the video — the light "scientific paper" system of the Field Shift app (shield_field globals.css
- * .theme-paper), reproduced here so the video never imports from the app. Backgrounds are paper or white only; the
- * three risk colours mean a risk tier and nothing else (red appears only on the verdict / high-caution highlight).
+ * .theme-paper), reproduced here so the video never imports from the app. Backgrounds are paper or white only. The
+ * accent is the brick red of the team's own slides (sampled #9C341C): headings, rules, highlights and edit motion.
  */
 export const theme = {
   paper: '#FBFAF7',
@@ -11,6 +11,9 @@ export const theme = {
   hairline: '#E9E7E0',
   /** Hover/tray surface of the app (line-2); used for quiet fills behind pills. */
   line2: '#F1EFE9',
+  /** The team's brick red: titles, the source names, rules, keyword highlights, wipes. */
+  accent: '#9C341C',
+  accentTint: '#F4E3DD',
   risk: {
     calm: '#2F7A54',
     watch: '#B07D1C',

@@ -6,7 +6,8 @@
  *   public/clip-magic.mp4   /map?year=2026 → click the Kostanay node → "Open full field page →" → Sowing tab → "May 28"
  *   public/clip-replay.mp4  /field/kostanay-01?year=2026 → Replay tab → the 2012 season replayed
  *   public/shot-water.png, shot-heat.png, shot-money.png, shot-crops.png   (1920×1080 viewport captures)
- *   public/clips.json       durations, so the composition picks a playback rate that fits each slot
+ *   public/clips.json       durations and every event second (clicks, panels, tabs ready), so the composition cuts
+ *                           each clip on its events and cues each voice line on the right picture
  *   capture/out/            the raw .webm recordings and ffmpeg-commands.txt (the exact commands that were run)
  *
  * Target: FIELD_SHIFT_URL (default https://shield-field.vercel.app). If it is unreachable and LOCAL_APP_DIR points at a
@@ -18,6 +19,7 @@ import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { calibrateAll } from './calibrate.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'capture', 'out');
@@ -159,9 +161,11 @@ async function glide(page, locator, label, ms = GLIDE_MS) {
   await page.mouse.move(x, y);
   await sleep(CLICK_PAUSE_MS);
   await page.evaluate(([rx, ry]) => { window.__cursorPress(true); return window.__ripple(rx, ry); }, [x, y]).catch(() => {});
+  const at = Date.now();
   await target.click({ position: { x: box.width / 2, y: box.height / 2 } });
   await page.evaluate(() => window.__cursorPress(false)).catch(() => {});
   log(`clicked ${label} at ${x},${y}`);
+  return { at, x, y };
 }
 
 function run(command, args, options = {}) {
@@ -248,39 +252,72 @@ async function finishRecording(context, page, name) {
 }
 
 /** The map → field → Sowing tour. Returns the raw recording and the seconds to trim off its head (blank load frames). */
+/**
+ * Turns the moments of a recording into seconds of the encoded clip (after the head trim) and clicks into output
+ * pixels, so the composition can cut the clip on its events and cue each voice line on the right picture.
+ */
+function eventClock(t0, trimOf) {
+  const sec = (at) => Number(((at - t0) / 1000 - trimOf()).toFixed(3));
+  return {
+    at: sec,
+    click: (c) => ({ sec: sec(c.at), x: Math.round(c.x * OUTPUT_SCALE), y: Math.round(c.y * OUTPUT_SCALE) }),
+  };
+}
+
+/** The map → field → Sowing tour; every event is logged so the composition can cut on it. */
 async function recordMagic(browser, base) {
   const context = await newRecordingContext(browser);
   const page = await context.newPage();
   const t0 = Date.now();
+  let trim = 0;
+  const clock = eventClock(t0, () => trim);
+  const raw = {};
   await page.goto(`${base}/map?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
   await expectVisible(page, page.getByRole('heading', { name: 'Pick a field. Read its season.' }), 'map page heading');
   const tPaint = Date.now();
   const node = page.getByRole('button', { name: /^Kostanay:/ });
   await expectVisible(page, node, 'Kostanay node');
   // Basemap tiles: wait for the network to go quiet, but never longer than the tour can afford.
-  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => log('networkidle not reached in 5 s; continuing'));
-  await sleep(600); // hold on the map before the cursor moves
-  await glide(page, node, 'Kostanay node');
+  await page.waitForLoadState('networkidle', { timeout: 6_000 }).catch(() => log('networkidle not reached in 6 s; continuing'));
+  await sleep(900); // the map is fully drawn before the cursor moves
+  raw.mapReady = Date.now();
+  raw.nodeClick = await glide(page, node, 'Kostanay node');
   const open = page.getByRole('link', { name: 'Open full field page →' });
   await expectVisible(page, open, '"Open full field page →"');
-  await sleep(1000); // the summary panel: the verdict and "Sow around May 28" are read
-  await glide(page, open, '"Open full field page →"');
+  raw.panelShown = Date.now();
+  await sleep(2000); // the summary panel: "High caution" is read on screen
+  raw.openClick = await glide(page, open, '"Open full field page →"');
   const sowingTab = page.getByRole('tab', { name: /^Sowing/ });
   await expectVisible(page, sowingTab, 'Sowing tab (field page)');
   await expectVisible(page, page.locator('[data-place-title]'), 'field page title');
+  raw.fieldPage = Date.now();
   await sleep(700);
-  await glide(page, sowingTab, 'Sowing tab');
+  raw.sowingClick = await glide(page, sowingTab, 'Sowing tab');
   await expectVisible(page, page.getByText(/^Sow around May 28/), '"Sow around May 28"');
-  await sleep(1200);
+  raw.sowingReady = Date.now();
+  await sleep(4000); // the dial holds long enough for its whole voice line
   const file = await finishRecording(context, page, 'magic');
-  return { file, trim: Math.max(0, (tPaint - t0) / 1000 - 0.15) };
+  trim = Number(Math.max(0, (tPaint - t0) / 1000 - 0.15).toFixed(2));
+  const events = {
+    mapReady: clock.at(raw.mapReady),
+    nodeClick: clock.click(raw.nodeClick),
+    panelShown: clock.at(raw.panelShown),
+    openClick: clock.click(raw.openClick),
+    fieldPage: clock.at(raw.fieldPage),
+    sowingClick: clock.click(raw.sowingClick),
+    sowingReady: clock.at(raw.sowingReady),
+  };
+  return { file, trim, events };
 }
 
-/** The field page → Replay tour. */
+/** The field page → Replay tour, with its events. */
 async function recordReplay(browser, base) {
   const context = await newRecordingContext(browser);
   const page = await context.newPage();
   const t0 = Date.now();
+  let trim = 0;
+  const clock = eventClock(t0, () => trim);
+  const raw = {};
   await page.goto(`${base}/field/${FIELD_ID}?year=${YEAR}`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
   await expectVisible(page, page.locator('[data-place-title]'), 'field page title');
   const tPaint = Date.now();
@@ -288,12 +325,14 @@ async function recordReplay(browser, base) {
   await expectVisible(page, replayTab, 'Replay tab');
   await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
   await sleep(900);
-  await glide(page, replayTab, 'Replay tab');
+  raw.replayClick = await glide(page, replayTab, 'Replay tab');
   await expectVisible(page, page.getByRole('heading', { name: 'How do we know? We replayed 2012.' }), 'replay heading');
   await expectVisible(page, page.getByText('What really happened · 2012 harvest'), '"What really happened · 2012 harvest"');
-  await sleep(1600);
+  raw.replayReady = Date.now();
+  await sleep(4200); // the replay holds long enough for its whole voice line
   const file = await finishRecording(context, page, 'replay');
-  return { file, trim: Math.max(0, (tPaint - t0) / 1000 - 0.15) };
+  trim = Number(Math.max(0, (tPaint - t0) / 1000 - 0.15).toFixed(2));
+  return { file, trim, events: { replayClick: clock.click(raw.replayClick), replayReady: clock.at(raw.replayReady) } };
 }
 
 /* -------------------------------------------------------------------------------------------------- screenshots */
@@ -383,7 +422,6 @@ async function main() {
     log(`magic recorded → ${magic.file} (trim ${magic.trim.toFixed(2)} s)`);
     const replay = await recordReplay(browser, target.base);
     log(`replay recorded → ${replay.file} (trim ${replay.trim.toFixed(2)} s)`);
-    await takeScreenshots(browser, target.base);
 
     const encodedMagic = encodeClip(magic.file, magic.trim, 'clip-magic.mp4');
     const encodedReplay = encodeClip(replay.file, replay.trim, 'clip-replay.mp4');
@@ -393,9 +431,11 @@ async function main() {
     const clips = {
       target: target.base,
       capturedAt: new Date().toISOString(),
-      magic: { file: 'clip-magic.mp4', seconds: encodedMagic.seconds, trimSeconds: Number(magic.trim.toFixed(2)) },
-      replay: { file: 'clip-replay.mp4', seconds: encodedReplay.seconds, trimSeconds: Number(replay.trim.toFixed(2)) },
+      magic: { file: 'clip-magic.mp4', seconds: encodedMagic.seconds, trimSeconds: Number(magic.trim.toFixed(2)), events: magic.events },
+      replay: { file: 'clip-replay.mp4', seconds: encodedReplay.seconds, trimSeconds: Number(replay.trim.toFixed(2)), events: replay.events },
     };
+    const offsets = calibrateAll(clips);
+    log(`event calibration against the pixels (seconds): ${JSON.stringify(offsets)}`);
     writeFileSync(join(PUBLIC, 'clips.json'), JSON.stringify(clips, null, 2) + '\n');
 
     log('done');

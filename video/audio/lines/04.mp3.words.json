@@ -12,31 +12,31 @@
  {
   "word": "field",
   "start": 0.412,
-  "end": 0.95
+  "end": 0.837
  },
  {
-  "word": "This",
-  "start": 1.812,
-  "end": 2.05
+  "word": "this",
+  "start": 1.025,
+  "end": 1.212
  },
  {
   "word": "season",
-  "start": 2.062,
-  "end": 2.413
+  "start": 1.225,
+  "end": 1.588
  },
  {
   "word": "reads",
-  "start": 2.425,
-  "end": 2.637
+  "start": 1.6,
+  "end": 1.825
  },
  {
   "word": "high",
-  "start": 2.65,
-  "end": 2.812
+  "start": 1.837,
+  "end": 2.012
  },
  {
   "word": "caution",
-  "start": 2.825,
-  "end": 3.425
+  "start": 2.025,
+  "end": 2.638
  }
 ]

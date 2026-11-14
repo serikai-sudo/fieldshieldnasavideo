@@ -1,5 +1,5 @@
 /**
- * S2 · 2–4 s: the statement at the top, the silhouette of Northern Kazakhstan (ink-2) on the left, and on the right a
+ * S2 · 2.7–5.5 s: the statement at the top, the silhouette of Northern Kazakhstan (ink-2) on the left, and on the right a
  * two-bar chart — the 2011 harvest, then the 2012 bar collapsing from that height to its own. Only the two recorded
  * yields appear: 16.61 and 7.93 c/ha (FAOSTAT). The 2012 figure fades in after the collapse, so no intermediate number
  * is ever on screen.
@@ -48,20 +48,27 @@ export const Scene02Problem: React.FC = () => {
   if (good === undefined || drought === undefined) return null;
 
   // 60-frame scene: 2011 rises 6–20; 2012 appears at the 2011 height on 22 and collapses to its own height over 24–42.
-  const goodRise = easeOut(fadeIn(frame, 6, 14));
-  const collapse = easeInOut(fadeIn(frame, 24, 18));
-  const droughtVisible = frame >= 22;
+  const goodRise = easeOut(fadeIn(frame, 6, 16));
+  const collapse = easeInOut(fadeIn(frame, 30, 16));
+  const droughtVisible = frame >= 26;
   const droughtH = barHeight(good.value) + (barHeight(drought.value) - barHeight(good.value)) * collapse;
-  const droughtNumberIn = fadeIn(frame, 42, 6);
-  const chipIn = fadeIn(frame, 46, 8);
+  const droughtNumberIn = fadeIn(frame, 46, 6);
+  const chipIn = fadeIn(frame, 54, 8);
+  // The hit: as the 2012 bar lands, a brick-red flash and a short shake (edit-style emphasis).
+  const HIT = 46;
+  const flash = frame >= HIT && frame < HIT + 6 ? 0.16 * (1 - (frame - HIT) / 6) : 0;
+  const shakeT = frame - HIT;
+  const shakeAmp = shakeT >= 0 && shakeT < 8 ? 7 * (1 - shakeT / 8) : 0;
+  const shakeX = shakeAmp * Math.sin(shakeT * 2.7);
+  const shakeY = shakeAmp * 0.6 * Math.cos(shakeT * 3.1);
 
   const bars = [
-    { year: good.year, h: barHeight(good.value) * goodRise, color: theme.ink2, number: good.value.toFixed(2), numberOpacity: fadeIn(frame, 18, 6), x: CHART_X },
+    { year: good.year, h: barHeight(good.value) * goodRise, color: theme.ink2, number: good.value.toFixed(2), numberOpacity: fadeIn(frame, 20, 6), x: CHART_X },
     { year: drought.year, h: droughtVisible ? droughtH : 0, color: theme.risk.high, number: drought.value.toFixed(2), numberOpacity: droughtNumberIn, x: CHART_X + BAR_W + BAR_GAP },
   ];
 
   return (
-    <AbsoluteFill style={{ backgroundColor: theme.paper, opacity: sceneIn }}>
+    <AbsoluteFill style={{ backgroundColor: theme.paper, opacity: sceneIn, transform: `translate(${shakeX}px, ${shakeY}px)` }}>
       {/* The statement. */}
       <div
         style={{
@@ -79,7 +86,8 @@ export const Scene02Problem: React.FC = () => {
           transform: `translateY(${(1 - headIn) * 12}px)`,
         }}
       >
-        {TEXT.problem.label}
+        {TEXT.problem.label.split(TEXT.problem.accent)[0]}
+        <span style={{ color: theme.accent }}>{TEXT.problem.accent}</span>
       </div>
 
       {/* The silhouette: Kazakhstan's spring-wheat north, the validated core outlined, the Kostanay field as a dot. */}
@@ -152,6 +160,7 @@ export const Scene02Problem: React.FC = () => {
           <Chip label={`Source · ${TEXT.problem.source}`} />
         </div>
       </div>
+      {flash > 0 && <AbsoluteFill style={{ backgroundColor: theme.accent, opacity: flash }} />}
     </AbsoluteFill>
   );
 };

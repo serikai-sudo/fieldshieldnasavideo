@@ -1,37 +1,42 @@
 [
  {
-  "word": "Next",
+  "word": "Built",
   "start": 0.1,
-  "end": 0.588
- },
- {
-  "word": "every",
-  "start": 0.75,
-  "end": 1.0
- },
- {
-  "word": "rainfed",
-  "start": 1.012,
-  "end": 1.487
- },
- {
-  "word": "grain",
-  "start": 1.5,
-  "end": 1.837
- },
- {
-  "word": "belt",
-  "start": 1.85,
-  "end": 2.113
+  "end": 0.387
  },
  {
   "word": "on",
-  "start": 2.125,
-  "end": 2.237
+  "start": 0.4,
+  "end": 0.538
  },
  {
-  "word": "Earth",
-  "start": 2.25,
-  "end": 2.612
+  "word": "NASA",
+  "start": 0.55,
+  "end": 0.875
+ },
+ {
+  "word": "POWER",
+  "start": 0.887,
+  "end": 1.35
+ },
+ {
+  "word": "SMAP",
+  "start": 1.5,
+  "end": 2.288
+ },
+ {
+  "word": "SRTM",
+  "start": 2.475,
+  "end": 3.2
+ },
+ {
+  "word": "and",
+  "start": 3.288,
+  "end": 3.388
+ },
+ {
+  "word": "MODIS",
+  "start": 3.4,
+  "end": 4.013
  }
 ]

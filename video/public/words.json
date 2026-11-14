@@ -5,12 +5,28 @@
    "line": 0,
    "words": [
     {
-     "word": "Field",
-     "at": 0.1
+     "word": "Hi",
+     "at": 0.133
     },
     {
-     "word": "Shift",
-     "at": 0.423
+     "word": "I’m",
+     "at": 0.653
+    },
+    {
+     "word": "Ayaru",
+     "at": 0.815
+    },
+    {
+     "word": "from",
+     "at": 1.477
+    },
+    {
+     "word": "team",
+     "at": 1.677
+    },
+    {
+     "word": "Innovator",
+     "at": 1.915
     }
    ]
   },
@@ -19,23 +35,23 @@
    "words": [
     {
      "word": "In 2012",
-     "at": 1.167
+     "at": 2.8
     },
     {
      "word": "drought",
-     "at": 2.417
+     "at": 3.992
     },
     {
      "word": "halved",
-     "at": 2.704
+     "at": 4.265
     },
     {
      "word": "wheat",
-     "at": 2.966
+     "at": 4.515
     },
     {
      "word": "yields",
-     "at": 3.192
+     "at": 4.73
     }
    ]
   },
@@ -44,39 +60,39 @@
    "words": [
     {
      "word": "Inside",
-     "at": 4.233
+     "at": 5.6
     },
     {
      "word": "water",
-     "at": 4.946
+     "at": 6.295
     },
     {
      "word": "heat",
-     "at": 5.571
+     "at": 6.942
     },
     {
      "word": "sowing",
-     "at": 6.046
+     "at": 7.405
     },
     {
      "word": "economics",
-     "at": 6.621
+     "at": 7.965
     },
     {
      "word": "eight",
-     "at": 7.496
+     "at": 8.819
     },
     {
      "word": "crops",
-     "at": 7.671
+     "at": 8.99
     },
     {
-     "word": "nine-location",
-     "at": 8.334
+     "word": "nine",
+     "at": 9.623
     },
     {
-     "word": "robustness",
-     "at": 9.084
+     "word": "locations",
+     "at": 9.904
     }
    ]
   },
@@ -85,35 +101,35 @@
    "words": [
     {
      "word": "Pick",
-     "at": 10.4
+     "at": 11.1
     },
     {
      "word": "a",
-     "at": 10.572
+     "at": 11.271
     },
     {
      "word": "field",
-     "at": 10.659
+     "at": 11.358
     },
     {
-     "word": "This",
-     "at": 12.059
+     "word": "this",
+     "at": 11.971
     },
     {
      "word": "season",
-     "at": 12.309
+     "at": 12.171
     },
     {
      "word": "reads",
-     "at": 12.672
+     "at": 12.546
     },
     {
      "word": "high",
-     "at": 12.897
+     "at": 12.783
     },
     {
      "word": "caution",
-     "at": 13.072
+     "at": 12.971
     }
    ]
   },
@@ -121,36 +137,28 @@
    "line": 4,
    "words": [
     {
-     "word": "The",
-     "at": 15.2
-    },
-    {
-     "word": "decision",
-     "at": 15.281
-    },
-    {
-     "word": "sow",
-     "at": 16.044
+     "word": "Sow",
+     "at": 14.467
     },
     {
      "word": "around",
-     "at": 16.306
+     "at": 14.719
     },
     {
      "word": "May 28",
-     "at": 16.631
+     "at": 15.044
     },
     {
      "word": "the",
-     "at": 17.694
+     "at": 16.119
     },
     {
      "word": "steadiest",
-     "at": 17.807
+     "at": 16.232
     },
     {
      "word": "harvest",
-     "at": 18.307
+     "at": 16.732
     }
    ]
   },
@@ -159,31 +167,31 @@
    "words": [
     {
      "word": "We",
-     "at": 20
+     "at": 17.767
     },
     {
      "word": "replayed",
-     "at": 20.127
+     "at": 17.892
     },
     {
      "word": "2012",
-     "at": 20.565
+     "at": 18.324
     },
     {
      "word": "high",
-     "at": 21.74
+     "at": 19.483
     },
     {
      "word": "caution",
-     "at": 21.915
+     "at": 19.656
     },
     {
      "word": "before",
-     "at": 22.365
+     "at": 20.1
     },
     {
      "word": "harvest",
-     "at": 22.69
+     "at": 20.42
     }
    ]
   },
@@ -192,23 +200,23 @@
    "words": [
     {
      "word": "Back-tested",
-     "at": 23.7
+     "at": 21.4
     },
     {
      "word": "against",
-     "at": 24.297
+     "at": 21.997
     },
     {
      "word": "national",
-     "at": 24.672
+     "at": 22.372
     },
     {
      "word": "wheat",
-     "at": 25.148
+     "at": 22.848
     },
     {
      "word": "yields",
-     "at": 25.36
+     "at": 23.06
     }
    ]
   },
@@ -216,32 +224,36 @@
    "line": 7,
    "words": [
     {
-     "word": "Next",
-     "at": 26.7
-    },
-    {
-     "word": "every",
-     "at": 27.309
-    },
-    {
-     "word": "rainfed",
-     "at": 27.571
-    },
-    {
-     "word": "grain",
-     "at": 28.059
-    },
-    {
-     "word": "belt",
-     "at": 28.409
+     "word": "Built",
+     "at": 24.1
     },
     {
      "word": "on",
-     "at": 28.684
+     "at": 24.332
     },
     {
-     "word": "Earth",
-     "at": 28.809
+     "word": "NASA",
+     "at": 24.482
+    },
+    {
+     "word": "POWER",
+     "at": 24.819
+    },
+    {
+     "word": "SMAP",
+     "at": 25.432
+    },
+    {
+     "word": "SRTM",
+     "at": 26.407
+    },
+    {
+     "word": "and",
+     "at": 27.22
+    },
+    {
+     "word": "MODIS",
+     "at": 27.332
     }
    ]
   }

@@ -3,13 +3,22 @@
  * renderer work before the clips, screenshots and voice-over exist, and pick them up by filename the moment they do.
  */
 import { staticFile } from 'remotion';
-import { TEXT } from './script';
+
+/** A logged moment of a recording: seconds into the clip, or a click (seconds + output pixels). */
+export type ClipEvent = number | { readonly sec: number; readonly x: number; readonly y: number };
 
 export type ClipInfo = {
   readonly exists: boolean;
   /** Duration in seconds from public/clips.json (written by capture/tour.mjs); null when unknown. */
   readonly seconds: number | null;
+  /** The recording's events (map ready, clicks, tabs ready …) in clip seconds; empty when unknown. */
+  readonly events: Readonly<Record<string, ClipEvent>>;
 };
+
+export function eventSec(event: ClipEvent | undefined): number | null {
+  if (event === undefined) return null;
+  return typeof event === 'number' ? event : event.sec;
+}
 
 export type Box = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
 export type Size = { readonly width: number; readonly height: number };
@@ -31,8 +40,6 @@ export type Assets = {
   readonly voiceover: boolean;
   readonly ui: UiAssets;
   readonly words: WordTimings;
-  /** Keyed by file name (TEXT.validation.strip[].file). */
-  readonly shots: Readonly<Record<string, boolean>>;
 };
 
 export const CLIP_FILES = { magic: 'clip-magic.mp4', replay: 'clip-replay.mp4' } as const;
@@ -40,12 +47,11 @@ export const VOICEOVER_FILE = 'voiceover.mp3';
 export const CLIPS_JSON = 'clips.json';
 
 export const NO_ASSETS: Assets = {
-  magic: { exists: false, seconds: null },
-  replay: { exists: false, seconds: null },
+  magic: { exists: false, seconds: null, events: {} },
+  replay: { exists: false, seconds: null, events: {} },
   voiceover: false,
   ui: null,
   words: null,
-  shots: Object.fromEntries(TEXT.validation.strip.map((shot) => [shot.file, false])),
 };
 
 /** True when the static server answers with the file itself (not a 404, not an index.html fallback). */
@@ -60,7 +66,7 @@ async function fileExists(name: string): Promise<boolean> {
   }
 }
 
-type ClipsJson = Partial<Record<keyof typeof CLIP_FILES, { readonly seconds?: number }>>;
+type ClipsJson = Partial<Record<keyof typeof CLIP_FILES, { readonly seconds?: number; readonly events?: Readonly<Record<string, ClipEvent>> }>>;
 
 async function readClipsJson(): Promise<ClipsJson> {
   try {
@@ -105,35 +111,23 @@ async function readWords(): Promise<WordTimings> {
 }
 
 export async function probeAssets(): Promise<Assets> {
-  const [magic, replay, voiceover, clips, ui, words, ...shots] = await Promise.all([
+  const [magic, replay, voiceover, clips, ui, words] = await Promise.all([
     fileExists(CLIP_FILES.magic),
     fileExists(CLIP_FILES.replay),
     fileExists(VOICEOVER_FILE),
     readClipsJson(),
     readUi(),
     readWords(),
-    ...TEXT.validation.strip.map((shot) => fileExists(shot.file)),
   ]);
   const seconds = (key: keyof typeof CLIP_FILES): number | null => {
     const value = clips[key]?.seconds;
     return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
   };
   return {
-    magic: { exists: magic, seconds: seconds('magic') },
-    replay: { exists: replay, seconds: seconds('replay') },
+    magic: { exists: magic, seconds: seconds('magic'), events: clips.magic?.events ?? {} },
+    replay: { exists: replay, seconds: seconds('replay'), events: clips.replay?.events ?? {} },
     voiceover,
     ui,
     words,
-    shots: Object.fromEntries(TEXT.validation.strip.map((shot, index) => [shot.file, shots[index] ?? false])),
   };
-}
-
-/**
- * The playback rate that fits a clip into its slot: 1× when it already fits, faster up to 1.5× when it is longer.
- * A clip that is still too long is simply cut by the slot (it ends on a held frame anyway).
- */
-export function rateFor(clip: ClipInfo, slotSeconds: number): number {
-  if (clip.seconds === null) return 1;
-  const needed = clip.seconds / slotSeconds;
-  return Math.min(1.5, Math.max(1, Math.round(needed * 100) / 100));
 }

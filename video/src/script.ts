@@ -3,11 +3,12 @@
  *
  * Rules (NASA Space Apps video, Field Shift):
  *  - 30 fps, 1920×1080, TOTAL_FRAMES = 885 (29.5 s) — hard cap; NASA disqualifies anything over 30.0 s.
- *  - Only these numbers may appear: 16.61 and 7.93 c/ha (national wheat yield 2011 / 2012, FAOSTAT),
- *    1992–2024, Spearman ρ = −0.63, p < 0.001 (data/skill-national.json of the app), and the sowing date
- *    May 28 (data/snapshots/sowing/kostanay-01.json cvarOptimal 05-28). Nothing else is invented.
- *    The feature strip adds two counts: 8 crops (CROP_ORDER in the app's src/lib/model/crops.ts) and 9 locations
- *    (data/skill-national.json perLocationSummary.count).
+ *  - Only these numbers are added by the video: 16.61 and 7.93 c/ha (national wheat yield 2011 / 2012, FAOSTAT), the
+ *    sowing date May 28 (data/snapshots/sowing/kostanay-01.json cvarOptimal 05-28), 8 crops (CROP_ORDER in the app's
+ *    src/lib/model/crops.ts), 9 locations (data/skill-national.json perLocationSummary.count), and the two figures of
+ *    the data captions: NASA POWER since 1984 (the first season of the app's record) and SRTM 30 m (the app's chip).
+ *    Every other figure on screen is a pixel of the platform itself.
+ *  - The 2012 replay and the national back-test are separate claims: in the back-test 2012 is a miss.
  *  - No "forecast", "predict", "flood", "real-time". English only.
  */
 
@@ -17,7 +18,7 @@ export const HEIGHT = 1080;
 /** 29.5 s. */
 export const TOTAL_FRAMES = 885;
 
-export type SceneId = 'title' | 'problem' | 'logo' | 'inside' | 'magic' | 'validation';
+export type SceneId = 'intro' | 'problem' | 'inside' | 'demoA' | 'demoB' | 'replay' | 'backtest' | 'data';
 
 export type SceneSpec = {
   readonly id: SceneId;
@@ -27,14 +28,16 @@ export type SceneSpec = {
   readonly duration: number;
 };
 
-/** The six scenes, back to back, summing to TOTAL_FRAMES. The live clip and the validation beat never move. */
+/** The scenes, back to back, summing to TOTAL_FRAMES. Each scene carries one voice line and shows what it says. */
 export const SCENES: readonly SceneSpec[] = [
-  { id: 'title', from: 0, duration: 36 },        // 0.0 – 1.2 s
-  { id: 'problem', from: 36, duration: 60 },     // 1.2 – 3.2 s
-  { id: 'logo', from: 96, duration: 30 },        // 3.2 – 4.2 s
-  { id: 'inside', from: 126, duration: 174 },    // 4.2 – 10.0 s  "Inside Field Shift": the real tab bar, word by word
-  { id: 'magic', from: 300, duration: 300 },     // 10.0 – 20.0 s
-  { id: 'validation', from: 600, duration: 285 },// 20.0 – 29.5 s
+  { id: 'intro', from: 0, duration: 80 },        // 0.0 – 2.7 s   "Hi, I'm Ayaru, from team Innovator."
+  { id: 'problem', from: 80, duration: 85 },     // 2.7 – 5.5 s   the 2012 harvest
+  { id: 'inside', from: 165, duration: 165 },    // 5.5 – 11.0 s  the real tab bar, word by word
+  { id: 'demoA', from: 330, duration: 102 },     // 11.0 – 14.4 s the live map: pick a field, high caution
+  { id: 'demoB', from: 432, duration: 99 },      // 14.4 – 17.7 s the Sowing tab: May 28
+  { id: 'replay', from: 531, duration: 108 },    // 17.7 – 21.3 s the 2012 replay
+  { id: 'backtest', from: 639, duration: 81 },   // 21.3 – 24.0 s the national back-test card
+  { id: 'data', from: 720, duration: 165 },      // 24.0 – 29.5 s built on NASA Earth data, end card
 ];
 
 export function scene(id: SceneId): SceneSpec {
@@ -43,36 +46,24 @@ export function scene(id: SceneId): SceneSpec {
   return found;
 }
 
-/** Inside Scene 5 (frames relative to its start, 285 total). */
-export const VALIDATION = {
-  /** The replay clip plays from 0 to this frame (4.6 s). */
-  clipEnd: 138,
-  /** The rigor stamp starts animating in while the clip is still on screen. */
-  stampIn: 96,
-  /** The four-shot strip. */
-  stripFrom: 138,
-  stripTo: 210,
-  /** The end card. */
-  endFrom: 210,
-} as const;
-
-/** Inside Scene 4 (frames relative to its start, 300 total). */
-export const MAGIC = {
-  /** Source pills slide in one after another. */
-  pillsFrom: 30,
-  pillGap: 18,
-  /** The kinetic "Sow around May 28" highlight. */
-  highlightFrom: 225,
-  highlightTo: 300,
+/**
+ * Where each clip scene cuts its recording: `anchor` is an event of public/clips.json (logged by capture/tour.mjs),
+ * `lead` the seconds shown before it. `click` is the event whose point gets the punch-in and the ring.
+ */
+export const CLIP_CUTS = {
+  demoA: { clip: 'magic', anchor: 'nodeClick', lead: 1.5, click: 'nodeClick' },
+  demoB: { clip: 'magic', anchor: 'sowingReady', lead: 0.15, click: null },
+  replay: { clip: 'replay', anchor: 'replayClick', lead: 0.4, click: 'replayClick' },
 } as const;
 
 /* ------------------------------------------------------------------------------------------------ on-screen text */
 
 export const TEXT = {
-  title: 'FIELD SHIFT',
-  byline: 'Ayaru · team Innovator',
+  intro: { hi: 'Hi, I’m', name: 'Ayaru', team: 'team Innovator' },
   problem: {
     label: '2012 drought — national wheat yield fell by about half',
+    /** The part of the label set in the accent colour. */
+    accent: 'fell by about half',
     unit: 'c/ha',
     source: 'FAOSTAT',
     bars: [
@@ -81,12 +72,11 @@ export const TEXT = {
     ],
     region: 'Northern Kazakhstan · spring-wheat belt',
   },
-  tagline: 'NASA Earth data → field-level climate risk',
   inside: {
     title: 'Inside Field Shift',
     /**
      * What each spoken word of the strip line brings up: the real tab bar with that tab active (public/ui/dock-<tab>.png)
-     * and the real piece of the field page it names (public/ui/<shot>.png). `word` is matched against the start of the
+     * and the real piece of the platform it names (public/ui/<shot>.png). `word` is matched against the start of the
      * spoken word in public/words.json; `tab: null` keeps the tab bar as it was.
      */
     reveals: [
@@ -94,7 +84,7 @@ export const TEXT = {
       { word: 'heat', tab: 'heat', shot: 'heat' },
       { word: 'sowing', tab: 'sowing', shot: 'sowing' },
       { word: 'economics', tab: 'sowing', shot: 'money' },
-      { word: 'crops', tab: null, shot: 'crops' },
+      { word: 'crops', tab: null, shot: 'crops-table' },
       { word: 'nine', tab: 'confidence', shot: 'locations' },
     ],
     /** Shown instead, as plain chips, while public/ui/ is missing. */
@@ -109,24 +99,39 @@ export const TEXT = {
       'Analogs · leave-one-out',
     ],
   },
-  magic: {
-    pills: ['NASA POWER', 'SMAP', 'MODIS'],
+  demo: {
     highlight: 'Sow around May 28',
-    placeholder: 'LIVE PLATFORM: click field → High caution → Sow May 28',
+    placeholderA: 'LIVE PLATFORM: the map → Kostanay → High caution',
+    placeholderB: 'LIVE PLATFORM: the Sowing tab → around May 28',
   },
-  validation: {
-    stamp: 'back-tested 1992–2024 · Spearman ρ = −0.63 · p < 0.001',
-    strip: [
-      { file: 'shot-water.png', label: 'Water' },
-      { file: 'shot-heat.png', label: 'Heat' },
-      { file: 'shot-money.png', label: 'The price of timing' },
-      { file: 'shot-crops.png', label: 'Crops' },
+  replay: { placeholder: 'LIVE PLATFORM: Replay 2012 → High caution before harvest' },
+  backtest: {
+    eyebrow: 'Confidence · back-test',
+    /** Shown instead while public/ui/backtest.png is missing. */
+    fallback: 'back-tested 1992–2024 · Spearman ρ = −0.63 · p < 0.001',
+  },
+  data: {
+    title: 'Built on NASA Earth data',
+    /** The NASA sources, from the team's slide; each lights up as the voice names it (`word`). */
+    nasa: [
+      { name: 'NASA POWER', caption: 'daily weather since 1984', word: 'nasa' },
+      { name: 'SMAP', caption: 'soil wetness at season start', word: 'smap' },
+      { name: 'SRTM', caption: 'height of the land, 30 m', word: 'srtm' },
+      { name: 'MODIS', caption: 'day the field turned green', word: 'modis' },
     ],
-    placeholderReplay: 'LIVE PLATFORM: Replay 2012 → High caution before harvest',
+    partnersTitle: 'with partners',
+    partners: [
+      { name: 'ESA WorldCover', caption: 'is this a real crop field?' },
+      { name: 'SoilGrids', caption: 'water the soil can hold' },
+      { name: 'FAOSTAT', caption: 'real harvests — the test' },
+    ],
     url: 'shield-field.vercel.app',
     next: 'Next: every rainfed grain belt on Earth.',
   },
 } as const;
+
+/** Words set in the accent colour wherever a caption shows them. */
+export const CAPTION_HIGHLIGHTS: readonly string[] = ['Ayaru', 'team Innovator', 'halved', 'high caution', 'May 28', '2012', 'NASA POWER', 'SMAP', 'SRTM', 'MODIS'];
 
 /* ------------------------------------------------------------------------------------------ voice-over + captions */
 
@@ -139,31 +144,33 @@ export type Line = {
   readonly text: string;
   /** false: a caption only; the voice pauses there. */
   readonly spoken?: boolean;
-  /** The frame the spoken take must end by, when earlier than the next spoken cue (an unspoken caption follows). */
+  /** The frame the spoken take must end by, when earlier than the next spoken cue. */
   readonly spokenUntil?: number;
 };
 
 /**
- * The voice-over, line by line, with the frames its subtitle is on screen (seconds = frame / 30). Each line is also
- * the burned-in English subtitle. `pnpm voiceover:tts` speaks every line with the free Microsoft neural voice
- * (edge-tts, en-US-JennyNeural, natural pace) into audio/lines/<NN>.mp3 plus its word timings; `pnpm voiceover` places
- * each take at its `from` cue to build public/voiceover.mp3 and writes public/words.json (every word's onset in
- * composition seconds), which the strip scene reveals the tabs by. `to` follows the measured take.
- * 1992–2024, ρ = −0.63 and p < 0.001 are on the rigor stamp, not spoken.
+ * The voice-over, line by line, with the frames its subtitle is on screen (seconds = frame / 30). One line per scene,
+ * cued a few frames into it, so every sentence plays over the picture it describes. `pnpm voiceover:tts` speaks each
+ * line with the free Microsoft neural voice (edge-tts, en-US-JennyNeural, natural pace) into audio/lines/<NN>.mp3 with
+ * its word timings; `pnpm voiceover` places each take at its `from` cue, builds public/voiceover.mp3 and writes
+ * public/words.json (every word's onset), which the intro, the strip and the data scene reveal by. `to` follows the
+ * measured take. The three partner sources are shown, not spoken.
  */
 export const LINES: readonly Line[] = [
-  { from: 3, to: 34, text: 'Field Shift.' },
-  { from: 35, to: 121, text: 'In 2012, drought halved wheat yields.' },
-  { from: 127, to: 306, text: 'Inside: water, heat, sowing, economics, eight crops, nine-location robustness.' },
-  { from: 312, to: 419, text: 'Pick a field. This season reads high caution.' },
-  { from: 456, to: 577, text: 'The decision: sow around May 28 — the steadiest harvest.' },
-  { from: 600, to: 708, text: 'We replayed 2012: high caution before harvest.' },
-  { from: 711, to: 786, text: 'Back-tested against national wheat yields.' },
-  { from: 801, to: 882, text: 'Next: every rainfed grain belt on Earth.' },
+  { from: 4, to: 82, text: 'Hi, I’m Ayaru, from team Innovator.' },
+  { from: 84, to: 167, text: 'In 2012, drought halved wheat yields.' },
+  { from: 168, to: 330, text: 'Inside: water, heat, sowing, economics, eight crops, nine locations.' },
+  { from: 333, to: 416, text: 'Pick a field — this season reads high caution.' },
+  { from: 434, to: 529, text: 'Sow around May 28: the steadiest harvest.' },
+  { from: 533, to: 640, text: 'We replayed 2012: high caution before harvest.' },
+  { from: 642, to: 717, text: 'Back-tested against national wheat yields.' },
+  { from: 723, to: 842, text: 'Built on NASA POWER, SMAP, SRTM and MODIS.' },
 ];
 
+export const INTRO_LINE_INDEX = 0;
 /** The line the strip scene reveals the tabs by. */
 export const INSIDE_LINE_INDEX = 2;
+export const DATA_LINE_INDEX = 7;
 
 /** The caption on screen at a composition frame, if any. */
 export function lineAt(frame: number): Line | undefined {

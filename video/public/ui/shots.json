@@ -46,5 +46,17 @@
   "locations": {
     "width": 606,
     "height": 67
+  },
+  "backtest": {
+    "width": 1060,
+    "height": 353
+  },
+  "sources": {
+    "width": 531,
+    "height": 21
+  },
+  "crops-table": {
+    "width": 1060,
+    "height": 654
   }
 }

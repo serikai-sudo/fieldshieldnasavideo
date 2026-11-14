@@ -21,7 +21,7 @@ const CONTENT_BOTTOM = 880;
 const CONTENT_MAX_WIDTH = 1240;
 const CONTENT_MAX_HEIGHT = CONTENT_BOTTOM - CONTENT_TOP - 40;
 /** Display width per picture (its CSS width scaled), capped by the band. */
-const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.04, heat: 1.0, sowing: 0.96, money: 1.4, crops: 1.75, locations: 2.0 };
+const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.04, heat: 1.0, sowing: 0.96, money: 1.4, crops: 1.75, 'crops-table': 1.0, locations: 2.0 };
 const IN_FRAMES = 10;
 const OUT_FRAMES = 8;
 const DOCK_FADE = 6;
@@ -72,7 +72,7 @@ const TabPulse: React.FC<{ readonly box: Box; readonly scale: number; readonly p
         width: box.width * scale,
         height: box.height * scale,
         borderRadius: 9 * scale,
-        border: `3px solid ${theme.ink}`,
+        border: `4px solid ${theme.accent}`,
         transform: `scale(${grow})`,
         opacity,
       }}
@@ -133,7 +133,7 @@ export const SceneInside: React.FC<{ readonly assets: Assets }> = ({ assets }) =
           transform: `translateY(${(1 - titleIn) * 10}px)`,
         }}
       >
-        {TEXT.inside.title}
+        <span style={{ color: theme.accent }}>{TEXT.inside.title.split(' ')[0]}</span> {TEXT.inside.title.split(' ').slice(1).join(' ')}
       </div>
 
       {ui === null ? (

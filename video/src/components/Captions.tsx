@@ -1,13 +1,29 @@
 /**
  * Burned-in English subtitles: the voice-over line of the current frame (script.ts LINES), ink text on a white card
- * chip, bottom-centre, at most two lines. Rendered once at the composition level so its frames are absolute.
+ * chip, bottom-centre, at most two lines, keywords in the brick-red accent. Rendered once at the composition level so
+ * its frames are absolute.
  */
 import type React from 'react';
 import { useCurrentFrame } from 'remotion';
-import { lineAt } from '../script';
+import { CAPTION_HIGHLIGHTS, lineAt } from '../script';
 import { fonts, radii, shadow, theme } from '../theme';
 
 const FADE_FRAMES = 5;
+
+const PATTERN = new RegExp(`(${CAPTION_HIGHLIGHTS.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+
+/** The line with its keywords set in the accent colour. */
+function highlighted(text: string): React.ReactNode[] {
+  return text.split(PATTERN).map((part, index) =>
+    CAPTION_HIGHLIGHTS.includes(part) ? (
+      <span key={index} style={{ color: theme.accent, fontWeight: 650 }}>
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
 
 export const Captions: React.FC = () => {
   const frame = useCurrentFrame();
@@ -36,7 +52,7 @@ export const Captions: React.FC = () => {
           textWrap: 'balance',
         }}
       >
-        {line.text}
+        {highlighted(line.text)}
       </div>
     </div>
   );
