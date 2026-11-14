@@ -8,8 +8,8 @@
  *   public/ui/heat.png        the Heat facet's first card (heat days)
  *   public/ui/sowing.png      the top of the Sowing dial (the decision, the bars, "Sow here · May 28")
  *   public/ui/money.png       "The price of timing"
- *   public/ui/crops.png       the crop switcher (Wheat … Sorghum)
- *   public/ui/locations.png   Confidence → "Holds across 9 locations …"
+ *   public/ui/crops.png       the crop switcher's eight pills (Wheat … Sorghum)
+ *   public/ui/locations.png   Confidence → "Holds across 9 locations …" and its one-line note
  *   public/ui/shots.json      each picture's CSS size, so the composition can size its card
  * Same target rules as capture/tour.mjs (FIELD_SHIFT_URL, HTTPS_PROXY).
  */
@@ -58,6 +58,24 @@ async function dockFor(page, facet, shots) {
   await shot(page.locator('[data-dock="field"]'), `dock-${facet}`, shots);
 }
 
+/** A screenshot clipped to the union of `parts` (plus a little air), for elements wider than what they hold. */
+async function shotUnion(page, parts, name, shots, pad = 8) {
+  const count = await parts.count();
+  if (count === 0) throw new Error(`${name}: nothing to frame`);
+  await parts.first().scrollIntoViewIfNeeded();
+  await sleep(350);
+  let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+  for (let i = 0; i < count; i += 1) {
+    const b = await parts.nth(i).boundingBox();
+    if (b === null) continue;
+    left = Math.min(left, b.x); top = Math.min(top, b.y); right = Math.max(right, b.x + b.width); bottom = Math.max(bottom, b.y + b.height);
+  }
+  const clip = { x: Math.floor(left - pad), y: Math.floor(top - pad), width: Math.ceil(right - left + 2 * pad), height: Math.ceil(bottom - top + 2 * pad) };
+  await page.screenshot({ path: join(UI, `${name}.png`), clip, animations: 'disabled' });
+  shots[name] = { width: clip.width, height: clip.height };
+  log(`${name}.png  ${clip.width}×${clip.height} css px (framed)`);
+}
+
 async function main() {
   mkdirSync(UI, { recursive: true });
   const browser = await chromium.launch({ ...proxyOption(), args: ['--enable-unsafe-swiftshader', '--font-render-hinting=none', '--hide-scrollbars'] });
@@ -82,7 +100,7 @@ async function main() {
     await shot(dock, 'dock-overview', shots);
     writeFileSync(join(UI, 'dock.json'), JSON.stringify({ width: dockBox.width, height: dockBox.height, tabs }, null, 2) + '\n');
 
-    await shot(page.locator('[data-crop-switcher]'), 'crops', shots);
+    await shotUnion(page, page.locator('[data-crop-switcher] > a'), 'crops', shots);
 
     await page.getByRole('tab', { name: /^Water/ }).click();
     await dockFor(page, 'water', shots);
@@ -114,7 +132,7 @@ async function main() {
     await page.getByRole('tab', { name: /^Confidence/ }).click();
     await dockFor(page, 'confidence', shots);
     await page.locator('[data-facet="confidence"]').waitFor({ state: 'visible' });
-    await shot(page.locator('[data-backtest-locations]'), 'locations', shots);
+    await shotUnion(page, page.locator('[data-backtest-locations] > p'), 'locations', shots, 10);
 
     writeFileSync(join(UI, 'shots.json'), JSON.stringify(shots, null, 2) + '\n');
     log('done → public/ui');

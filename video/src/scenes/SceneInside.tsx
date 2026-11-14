@@ -21,7 +21,7 @@ const CONTENT_BOTTOM = 880;
 const CONTENT_MAX_WIDTH = 1240;
 const CONTENT_MAX_HEIGHT = CONTENT_BOTTOM - CONTENT_TOP - 40;
 /** Display width per picture (its CSS width scaled), capped by the band. */
-const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.04, heat: 1.0, sowing: 0.96, money: 1.4, crops: 1.2, locations: 1.14 };
+const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.04, heat: 1.0, sowing: 0.96, money: 1.4, crops: 1.75, locations: 1.8 };
 const IN_FRAMES = 10;
 const OUT_FRAMES = 8;
 const DOCK_FADE = 6;
