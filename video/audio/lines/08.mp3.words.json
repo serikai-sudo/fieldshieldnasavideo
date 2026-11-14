@@ -1,42 +1,47 @@
 [
  {
-  "word": "Built",
+  "word": "33 years",
   "start": 0.1,
-  "end": 0.387
+  "end": 0.95
  },
  {
-  "word": "on",
-  "start": 0.4,
-  "end": 0.538
+  "word": "back-tested",
+  "start": 0.963,
+  "end": 1.688
  },
  {
-  "word": "NASA",
-  "start": 0.55,
-  "end": 0.875
+  "word": "with",
+  "start": 1.85,
+  "end": 1.988
  },
  {
-  "word": "POWER",
-  "start": 0.887,
-  "end": 1.35
+  "word": "heat",
+  "start": 2.0,
+  "end": 2.388
  },
  {
-  "word": "SMAP",
-  "start": 1.5,
-  "end": 2.288
+  "word": "it",
+  "start": 2.6,
+  "end": 2.663
  },
  {
-  "word": "SRTM",
-  "start": 2.475,
-  "end": 3.2
+  "word": "holds",
+  "start": 2.675,
+  "end": 3.0
  },
  {
-  "word": "and",
-  "start": 3.288,
-  "end": 3.388
+  "word": "out",
+  "start": 3.013,
+  "end": 3.15
  },
  {
-  "word": "MODIS",
-  "start": 3.4,
-  "end": 4.013
+  "word": "of",
+  "start": 3.163,
+  "end": 3.238
+ },
+ {
+  "word": "sample",
+  "start": 3.25,
+  "end": 3.812
  }
 ]

@@ -28,7 +28,7 @@ function highlighted(text: string): React.ReactNode[] {
 export const Captions: React.FC = () => {
   const frame = useCurrentFrame();
   const line = lineAt(frame);
-  if (line === undefined) return null;
+  if (line === undefined || line.caption === false) return null;
   const opacity = Math.min(1, (frame - line.from + 1) / FADE_FRAMES, (line.to - frame) / FADE_FRAMES);
   const rise = (1 - Math.min(1, (frame - line.from + 1) / FADE_FRAMES)) * 10;
   return (

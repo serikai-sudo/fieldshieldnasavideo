@@ -1,32 +1,42 @@
 [
  {
-  "word": "Sow",
+  "word": "The",
   "start": 0.1,
-  "end": 0.387
+  "end": 0.238
  },
  {
-  "word": "around",
-  "start": 0.4,
-  "end": 0.713
+  "word": "calculator",
+  "start": 0.25,
+  "end": 0.925
  },
  {
-  "word": "May 28",
-  "start": 0.725,
-  "end": 1.612
+  "word": "turns",
+  "start": 0.938,
+  "end": 1.25
  },
  {
-  "word": "the",
-  "start": 1.8,
-  "end": 1.9
+  "word": "timing",
+  "start": 1.262,
+  "end": 1.6
  },
  {
-  "word": "steadiest",
-  "start": 1.913,
-  "end": 2.4
+  "word": "into",
+  "start": 1.613,
+  "end": 1.8
  },
  {
-  "word": "harvest",
-  "start": 2.413,
-  "end": 3.05
+  "word": "money",
+  "start": 1.812,
+  "end": 2.237
+ },
+ {
+  "word": "in",
+  "start": 2.388,
+  "end": 2.513
+ },
+ {
+  "word": "tenge",
+  "start": 2.525,
+  "end": 3.1
  }
 ]

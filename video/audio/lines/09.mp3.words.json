@@ -1,0 +1,37 @@
+[
+ {
+  "word": "Next",
+  "start": 0.1,
+  "end": 0.588
+ },
+ {
+  "word": "every",
+  "start": 0.75,
+  "end": 1.0
+ },
+ {
+  "word": "rainfed",
+  "start": 1.012,
+  "end": 1.487
+ },
+ {
+  "word": "grain",
+  "start": 1.5,
+  "end": 1.837
+ },
+ {
+  "word": "belt",
+  "start": 1.85,
+  "end": 2.113
+ },
+ {
+  "word": "on",
+  "start": 2.125,
+  "end": 2.237
+ },
+ {
+  "word": "Earth",
+  "start": 2.25,
+  "end": 2.612
+ }
+]

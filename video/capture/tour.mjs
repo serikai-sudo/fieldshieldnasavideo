@@ -15,7 +15,7 @@
  * Needs `ffmpeg`/`ffprobe` on PATH. HTTPS_PROXY, when set, is passed to Chromium (sandboxes); otherwise direct.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -47,6 +47,8 @@ const OUTPUT_SCALE = OUTPUT.width / VIEWPORT.width;
 const CURSOR_PX = Math.round(34 / OUTPUT_SCALE);
 const GLIDE_MS = 800;
 const CLICK_PAUSE_MS = 250;
+/** Where the calculator clip puts the sowing slider (CSS px from the top of the viewport). */
+const SLIDER_TOP_CSS = 70;
 const NAV_TIMEOUT = 90_000;
 
 function parseViewport(value) {
@@ -399,6 +401,117 @@ function encodeClip(input, trimSeconds, outputName) {
   return { output, command, seconds: probeSeconds(output) };
 }
 
+/* -------------------------------------------------------------------------------------------- the calculator */
+
+/** A box of an element in output pixels (the encoded clip's coordinates). */
+async function outputBox(locator) {
+  const b = await locator.first().boundingBox();
+  if (b === null) return null;
+  return { x: Math.round(b.x * OUTPUT_SCALE), y: Math.round(b.y * OUTPUT_SCALE), w: Math.round(b.width * OUTPUT_SCALE), h: Math.round(b.height * OUTPUT_SCALE) };
+}
+
+/**
+ * The price of timing: the Sowing tab's money block, switched to tenge, then the sowing-date slider moved three steps
+ * later (May 28 → Jun 12) so the block says what the late date gives up in a dry year. Events: kztClick, kztShown
+ * (the calibration anchor: the money turns into tenge), dragEnd, givesUp (the sentence's centre and width, for the
+ * punch-in and its underline).
+ */
+async function recordMoney(browser, base) {
+  const context = await newRecordingContext(browser);
+  const page = await context.newPage();
+  const t0 = Date.now();
+  let trim = 0;
+  const clock = eventClock(t0, () => trim);
+  const raw = {};
+  await page.goto(`${base}/field/${FIELD_ID}?year=${YEAR}#sowing`, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+  const money = page.locator('[data-money]');
+  await expectVisible(page, money, 'the money block');
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+  // The slider near the top of the viewport and the whole money block under it, its last sentence well above the
+  // band where the video's captions sit. Scrolled twice: late layout (fonts, the chart) can move it after the first.
+  // The calculator is the last block of the page, so the page cannot scroll it that high: an empty paper-coloured
+  // spacer after the page (in this browser only, nothing in the app changes) gives it the room.
+  await page.evaluate(() => {
+    const spacer = document.createElement('div');
+    spacer.setAttribute('aria-hidden', 'true');
+    spacer.style.height = '520px';
+    document.body.appendChild(spacer);
+  });
+  for (let pass = 0; pass < 2; pass += 1) {
+    await page.locator('#sowing-date').evaluate((element, wanted) => {
+      const top = element.getBoundingClientRect().top + window.scrollY - wanted;
+      window.scrollTo({ top, behavior: 'instant' });
+    }, SLIDER_TOP_CSS);
+    await sleep(400);
+  }
+  const tPaint = Date.now();
+  await sleep(700);
+
+  const revenue = page.locator('[data-dry-year-revenue]');
+  const before = await revenue.innerText();
+  raw.kztClick = await glide(page, page.locator('button[data-currency="KZT"]'), 'KZT', 650);
+  await page.waitForFunction((text) => document.querySelector('[data-dry-year-revenue]')?.textContent?.trim() !== text.trim(), before, { timeout: 10_000 });
+  raw.kztShown = Date.now();
+  const calibrationBox = await outputBox(revenue);
+  await sleep(300);
+
+  // Three grid steps later (5 days each): the cursor drags the thumb, the keyboard settles it on the exact date.
+  const slider = page.locator('#sowing-date');
+  const box = await slider.boundingBox();
+  const min = Number(await slider.getAttribute('min'));
+  const max = Number(await slider.getAttribute('max'));
+  const from = Number(await slider.inputValue());
+  const to = Math.min(max, from + 3);
+  const thumb = 8;
+  const xFor = (v) => Math.round(box.x + thumb + ((v - min) / (max - min)) * (box.width - 2 * thumb));
+  const y = Math.round(box.y + box.height / 2);
+  await page.evaluate(([gx, gy, gms]) => window.__glide(gx, gy, gms), [xFor(from), y, 420]);
+  await page.mouse.move(xFor(from), y);
+  await sleep(100);
+  await page.evaluate(() => window.__cursorPress(true)).catch(() => {});
+  await page.mouse.down();
+  for (let i = 1; i <= 10; i += 1) {
+    const p = i / 10;
+    const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    const x = Math.round(xFor(from) + (xFor(to) - xFor(from)) * e);
+    await page.mouse.move(x, y);
+    await page.evaluate(([gx, gy]) => window.__glide(gx, gy, 16), [x, y]);
+    await sleep(20);
+  }
+  await page.mouse.up();
+  await page.evaluate(() => window.__cursorPress(false)).catch(() => {});
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const now = Number(await slider.inputValue());
+    if (now === to) break;
+    await slider.focus();
+    await page.keyboard.press(now > to ? 'ArrowLeft' : 'ArrowRight');
+    await sleep(80);
+  }
+  raw.dragEnd = { at: Date.now(), x: xFor(to), y };
+  const givesUp = page.locator('[data-money-gives-up="picked"]');
+  await expectVisible(page, givesUp, 'the "gives up" sentence');
+  // The words themselves (a text range), not the full-width block: the film underlines exactly the sentence.
+  const sentence = await givesUp.first().evaluate((element, scale) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const b = range.getBoundingClientRect();
+    return { x: Math.round(b.x * scale), y: Math.round(b.y * scale), w: Math.round(b.width * scale), h: Math.round(b.height * scale) };
+  }, OUTPUT_SCALE);
+  raw.givesUp = Date.now();
+  log(`calculator: ${(await givesUp.innerText()).trim()}`);
+  await sleep(3200);
+
+  const file = await finishRecording(context, page, 'money');
+  trim = Number(Math.max(0, (tPaint - t0) / 1000 - 0.15).toFixed(2));
+  const events = {
+    kztClick: clock.click(raw.kztClick),
+    kztShown: clock.at(raw.kztShown),
+    dragEnd: clock.click(raw.dragEnd),
+    givesUp: { sec: clock.at(raw.givesUp), x: sentence.x + Math.round(sentence.w / 2), y: sentence.y + Math.round(sentence.h / 2), w: sentence.w },
+  };
+  return { file, trim, events, calibrationBox };
+}
+
 /* --------------------------------------------------------------------------------------------------------- main */
 
 async function main() {
@@ -418,29 +531,28 @@ async function main() {
     server = target.server;
     log(`filming ${target.base} at a ${VIEWPORT.width}×${VIEWPORT.height} viewport; clips are scaled to ${OUTPUT.width}×${OUTPUT.height} by ffmpeg`);
 
-    const magic = await recordMagic(browser, target.base);
-    log(`magic recorded → ${magic.file} (trim ${magic.trim.toFixed(2)} s)`);
-    const replay = await recordReplay(browser, target.base);
-    log(`replay recorded → ${replay.file} (trim ${replay.trim.toFixed(2)} s)`);
-
-    const encodedMagic = encodeClip(magic.file, magic.trim, 'clip-magic.mp4');
-    const encodedReplay = encodeClip(replay.file, replay.trim, 'clip-replay.mp4');
-
-    const commands = [encodedMagic.command, encodedReplay.command].join('\n') + '\n';
-    writeFileSync(join(OUT, 'ffmpeg-commands.txt'), commands);
-    const clips = {
-      target: target.base,
-      capturedAt: new Date().toISOString(),
-      magic: { file: 'clip-magic.mp4', seconds: encodedMagic.seconds, trimSeconds: Number(magic.trim.toFixed(2)), events: magic.events },
-      replay: { file: 'clip-replay.mp4', seconds: encodedReplay.seconds, trimSeconds: Number(replay.trim.toFixed(2)), events: replay.events },
-    };
+    // CAPTURE_ONLY=money (comma list) re-films only those clips and keeps the others of public/clips.json.
+    const only = (process.env.CAPTURE_ONLY ?? '').split(',').map((name) => name.trim()).filter(Boolean);
+    const wanted = (name) => only.length === 0 || only.includes(name);
+    const previous = existsSync(join(PUBLIC, 'clips.json')) ? JSON.parse(readFileSync(join(PUBLIC, 'clips.json'), 'utf8')) : {};
+    const recorders = { magic: recordMagic, replay: recordReplay, money: recordMoney };
+    const clips = { ...previous, target: target.base, capturedAt: new Date().toISOString() };
+    const commands = [];
+    for (const [name, record] of Object.entries(recorders)) {
+      if (!wanted(name)) continue;
+      const take = await record(browser, target.base);
+      log(`${name} recorded → ${take.file} (trim ${take.trim.toFixed(2)} s)`);
+      const encoded = encodeClip(take.file, take.trim, `clip-${name}.mp4`);
+      commands.push(encoded.command);
+      clips[name] = { file: `clip-${name}.mp4`, seconds: encoded.seconds, trimSeconds: Number(take.trim.toFixed(2)), events: take.events, ...(take.calibrationBox === undefined ? {} : { calibrationBox: take.calibrationBox }) };
+    }
+    writeFileSync(join(OUT, 'ffmpeg-commands.txt'), commands.join('\n') + '\n');
     const offsets = calibrateAll(clips);
     log(`event calibration against the pixels (seconds): ${JSON.stringify(offsets)}`);
     writeFileSync(join(PUBLIC, 'clips.json'), JSON.stringify(clips, null, 2) + '\n');
 
     log('done');
-    log(`clip-magic.mp4   ${encodedMagic.seconds.toFixed(2)} s`);
-    log(`clip-replay.mp4  ${encodedReplay.seconds.toFixed(2)} s`);
+    for (const name of Object.keys(recorders)) if (clips[name] !== undefined) log(`clip-${name}.mp4 ${Number(clips[name].seconds).toFixed(2)} s`);
     log('ffmpeg commands → capture/out/ffmpeg-commands.txt');
   } finally {
     await browser.close();

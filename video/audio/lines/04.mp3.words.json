@@ -1,42 +1,42 @@
 [
  {
-  "word": "Pick",
+  "word": "Sow",
   "start": 0.1,
-  "end": 0.312
+  "end": 0.387
  },
  {
-  "word": "a",
-  "start": 0.325,
-  "end": 0.4
+  "word": "around",
+  "start": 0.4,
+  "end": 0.7
  },
  {
-  "word": "field",
-  "start": 0.412,
-  "end": 0.837
+  "word": "May 28",
+  "start": 0.713,
+  "end": 1.575
  },
  {
-  "word": "this",
-  "start": 1.025,
-  "end": 1.212
+  "word": "safest",
+  "start": 1.762,
+  "end": 2.263
  },
  {
-  "word": "season",
-  "start": 1.225,
-  "end": 1.588
+  "word": "in",
+  "start": 2.275,
+  "end": 2.35
  },
  {
-  "word": "reads",
-  "start": 1.6,
-  "end": 1.825
+  "word": "the",
+  "start": 2.362,
+  "end": 2.438
  },
  {
-  "word": "high",
-  "start": 1.837,
-  "end": 2.012
+  "word": "worst",
+  "start": 2.45,
+  "end": 2.763
  },
  {
-  "word": "caution",
-  "start": 2.025,
-  "end": 2.638
+  "word": "years",
+  "start": 2.775,
+  "end": 3.3
  }
 ]

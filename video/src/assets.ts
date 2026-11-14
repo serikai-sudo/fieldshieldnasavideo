@@ -5,7 +5,8 @@
 import { staticFile } from 'remotion';
 
 /** A logged moment of a recording: seconds into the clip, or a click (seconds + output pixels). */
-export type ClipEvent = number | { readonly sec: number; readonly x: number; readonly y: number };
+/** A moment of a clip in seconds, or a moment at a point of the frame (and, for a sentence, its width). */
+export type ClipEvent = number | { readonly sec: number; readonly x: number; readonly y: number; readonly w?: number };
 
 export type ClipInfo = {
   readonly exists: boolean;
@@ -37,18 +38,20 @@ export type WordTimings = readonly { readonly line: number; readonly words: read
 export type Assets = {
   readonly magic: ClipInfo;
   readonly replay: ClipInfo;
+  readonly money: ClipInfo;
   readonly voiceover: boolean;
   readonly ui: UiAssets;
   readonly words: WordTimings;
 };
 
-export const CLIP_FILES = { magic: 'clip-magic.mp4', replay: 'clip-replay.mp4' } as const;
+export const CLIP_FILES = { magic: 'clip-magic.mp4', replay: 'clip-replay.mp4', money: 'clip-money.mp4' } as const;
 export const VOICEOVER_FILE = 'voiceover.mp3';
 export const CLIPS_JSON = 'clips.json';
 
 export const NO_ASSETS: Assets = {
   magic: { exists: false, seconds: null, events: {} },
   replay: { exists: false, seconds: null, events: {} },
+  money: { exists: false, seconds: null, events: {} },
   voiceover: false,
   ui: null,
   words: null,
@@ -111,9 +114,10 @@ async function readWords(): Promise<WordTimings> {
 }
 
 export async function probeAssets(): Promise<Assets> {
-  const [magic, replay, voiceover, clips, ui, words] = await Promise.all([
+  const [magic, replay, money, voiceover, clips, ui, words] = await Promise.all([
     fileExists(CLIP_FILES.magic),
     fileExists(CLIP_FILES.replay),
+    fileExists(CLIP_FILES.money),
     fileExists(VOICEOVER_FILE),
     readClipsJson(),
     readUi(),
@@ -126,6 +130,7 @@ export async function probeAssets(): Promise<Assets> {
   return {
     magic: { exists: magic, seconds: seconds('magic'), events: clips.magic?.events ?? {} },
     replay: { exists: replay, seconds: seconds('replay'), events: clips.replay?.events ?? {} },
+    money: { exists: money, seconds: seconds('money'), events: clips.money?.events ?? {} },
     voiceover,
     ui,
     words,

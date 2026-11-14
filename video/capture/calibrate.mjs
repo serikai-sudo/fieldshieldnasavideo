@@ -15,8 +15,11 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = join(ROOT, 'public');
 /** Below the tab bar on the field page (output pixels): it changes the moment a tab's content swaps. */
 const CONTENT_BOX = { x: 120, y: 700, w: 780, h: 200 };
-/** Which event each clip is calibrated on: the tab whose content swap is unmistakable. */
-const ANCHORS = { magic: 'sowingReady', replay: 'replayReady' };
+/**
+ * Which event each clip is calibrated on: a change that is unmistakable in the pixels — a tab's content swapping, or
+ * the calculator's money turning into tenge (inside the clip's own `calibrationBox`).
+ */
+const ANCHORS = { magic: 'sowingReady', replay: 'replayReady', money: 'kztShown' };
 const MAX_SHIFT = 1.5;
 
 /** First second in [from, to] at which the box differs clearly from its look at `from`; null when it never does. */
@@ -48,7 +51,7 @@ export function calibrateClip(entry, file, anchor) {
   const raw = entry.rawEvents ?? entry.events;
   if (raw === undefined || raw[anchor] === undefined) return null;
   const logged = typeof raw[anchor] === 'number' ? raw[anchor] : raw[anchor].sec;
-  const seen = firstChange(file, logged - 1.2, logged + 0.8);
+  const seen = firstChange(file, logged - 1.2, logged + 0.8, entry.calibrationBox ?? CONTENT_BOX);
   if (seen === null) return null;
   const offset = Number((seen - logged).toFixed(3));
   if (Math.abs(offset) > MAX_SHIFT) return null;

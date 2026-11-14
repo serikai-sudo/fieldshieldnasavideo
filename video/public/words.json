@@ -10,23 +10,23 @@
     },
     {
      "word": "I’m",
-     "at": 0.653
+     "at": 0.636
     },
     {
      "word": "Ayaru",
-     "at": 0.815
+     "at": 0.793
     },
     {
      "word": "from",
-     "at": 1.477
+     "at": 1.433
     },
     {
      "word": "team",
-     "at": 1.677
+     "at": 1.627
     },
     {
      "word": "Innovator",
-     "at": 1.915
+     "at": 1.857
     }
    ]
   },
@@ -35,23 +35,23 @@
    "words": [
     {
      "word": "In 2012",
-     "at": 2.8
+     "at": 2.733
     },
     {
      "word": "drought",
-     "at": 3.992
+     "at": 3.913
     },
     {
      "word": "halved",
-     "at": 4.265
+     "at": 4.184
     },
     {
      "word": "wheat",
-     "at": 4.515
+     "at": 4.431
     },
     {
      "word": "yields",
-     "at": 4.73
+     "at": 4.644
     }
    ]
   },
@@ -59,40 +59,32 @@
    "line": 2,
    "words": [
     {
-     "word": "Inside",
-     "at": 5.6
+     "word": "Click",
+     "at": 5.5
     },
     {
-     "word": "water",
-     "at": 6.295
+     "word": "a",
+     "at": 5.702
     },
     {
-     "word": "heat",
-     "at": 6.942
+     "word": "field",
+     "at": 5.777
+    },
+    {
+     "word": "risk",
+     "at": 6.364
     },
     {
      "word": "sowing",
-     "at": 7.405
+     "at": 6.914
     },
     {
-     "word": "economics",
-     "at": 7.965
+     "word": "date",
+     "at": 7.29
     },
     {
-     "word": "eight",
-     "at": 8.819
-    },
-    {
-     "word": "crops",
-     "at": 8.99
-    },
-    {
-     "word": "nine",
-     "at": 9.623
-    },
-    {
-     "word": "locations",
-     "at": 9.904
+     "word": "confidence",
+     "at": 7.814
     }
    ]
   },
@@ -100,36 +92,36 @@
    "line": 3,
    "words": [
     {
-     "word": "Pick",
-     "at": 11.1
+     "word": "Sow",
+     "at": 9
     },
     {
-     "word": "a",
-     "at": 11.271
+     "word": "around",
+     "at": 9.252
     },
     {
-     "word": "field",
-     "at": 11.358
+     "word": "May 28",
+     "at": 9.565
     },
     {
-     "word": "this",
-     "at": 11.971
+     "word": "safest",
+     "at": 10.614
     },
     {
-     "word": "season",
-     "at": 12.171
+     "word": "in",
+     "at": 11.127
     },
     {
-     "word": "reads",
-     "at": 12.546
+     "word": "the",
+     "at": 11.214
     },
     {
-     "word": "high",
-     "at": 12.783
+     "word": "worst",
+     "at": 11.302
     },
     {
-     "word": "caution",
-     "at": 12.971
+     "word": "years",
+     "at": 11.627
     }
    ]
   },
@@ -137,28 +129,36 @@
    "line": 4,
    "words": [
     {
-     "word": "Sow",
-     "at": 14.467
+     "word": "The",
+     "at": 12.567
     },
     {
-     "word": "around",
-     "at": 14.719
+     "word": "calculator",
+     "at": 12.652
     },
     {
-     "word": "May 28",
-     "at": 15.044
+     "word": "turns",
+     "at": 13.34
     },
     {
-     "word": "the",
-     "at": 16.119
+     "word": "timing",
+     "at": 13.664
     },
     {
-     "word": "steadiest",
-     "at": 16.232
+     "word": "into",
+     "at": 14.015
     },
     {
-     "word": "harvest",
-     "at": 16.732
+     "word": "money",
+     "at": 14.214
+    },
+    {
+     "word": "in",
+     "at": 14.79
+    },
+    {
+     "word": "tenge",
+     "at": 14.927
     }
    ]
   },
@@ -166,32 +166,36 @@
    "line": 5,
    "words": [
     {
-     "word": "We",
-     "at": 17.767
+     "word": "Water",
+     "at": 15.967
     },
     {
-     "word": "replayed",
-     "at": 17.892
+     "word": "balance",
+     "at": 16.245
     },
     {
-     "word": "2012",
-     "at": 18.324
+     "word": "and",
+     "at": 16.944
     },
     {
-     "word": "high",
-     "at": 19.483
+     "word": "heat",
+     "at": 17.095
     },
     {
-     "word": "caution",
-     "at": 19.656
+     "word": "with",
+     "at": 17.357
     },
     {
-     "word": "before",
-     "at": 20.1
+     "word": "drought",
+     "at": 17.495
     },
     {
-     "word": "harvest",
-     "at": 20.42
+     "word": "at",
+     "at": 17.795
+    },
+    {
+     "word": "flowering",
+     "at": 17.894
     }
    ]
   },
@@ -199,24 +203,32 @@
    "line": 6,
    "words": [
     {
-     "word": "Back-tested",
-     "at": 21.4
+     "word": "We",
+     "at": 19.067
     },
     {
-     "word": "against",
-     "at": 21.997
+     "word": "replayed",
+     "at": 19.194
     },
     {
-     "word": "national",
-     "at": 22.372
+     "word": "2012",
+     "at": 19.632
     },
     {
-     "word": "wheat",
-     "at": 22.848
+     "word": "high",
+     "at": 20.807
     },
     {
-     "word": "yields",
-     "at": 23.06
+     "word": "caution",
+     "at": 20.982
+    },
+    {
+     "word": "before",
+     "at": 21.432
+    },
+    {
+     "word": "harvest",
+     "at": 21.757
     }
    ]
   },
@@ -224,36 +236,73 @@
    "line": 7,
    "words": [
     {
-     "word": "Built",
-     "at": 24.1
+     "word": "33 years",
+     "at": 22.833
+    },
+    {
+     "word": "back-tested",
+     "at": 23.628
+    },
+    {
+     "word": "with",
+     "at": 24.515
+    },
+    {
+     "word": "heat",
+     "at": 24.665
+    },
+    {
+     "word": "it",
+     "at": 25.265
+    },
+    {
+     "word": "holds",
+     "at": 25.34
+    },
+    {
+     "word": "out",
+     "at": 25.678
+    },
+    {
+     "word": "of",
+     "at": 25.828
+    },
+    {
+     "word": "sample",
+     "at": 25.915
+    }
+   ]
+  },
+  {
+   "line": 8,
+   "words": [
+    {
+     "word": "Next",
+     "at": 26.833
+    },
+    {
+     "word": "every",
+     "at": 27.417
+    },
+    {
+     "word": "rainfed",
+     "at": 27.669
+    },
+    {
+     "word": "grain",
+     "at": 28.137
+    },
+    {
+     "word": "belt",
+     "at": 28.473
     },
     {
      "word": "on",
-     "at": 24.332
+     "at": 28.736
     },
     {
-     "word": "NASA",
-     "at": 24.482
-    },
-    {
-     "word": "POWER",
-     "at": 24.819
-    },
-    {
-     "word": "SMAP",
-     "at": 25.432
-    },
-    {
-     "word": "SRTM",
-     "at": 26.407
-    },
-    {
-     "word": "and",
-     "at": 27.22
-    },
-    {
-     "word": "MODIS",
-     "at": 27.332
+     "word": "Earth",
+     "at": 28.856
     }
    ]
   }

@@ -10,7 +10,7 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import type { Assets, Box, Size } from '../assets';
 import { Pill } from '../components/Pill';
 import { clamp01, easeOut, fadeIn } from '../lib/anim';
-import { FPS, INSIDE_LINE_INDEX, LINES, TEXT, scene } from '../script';
+import { FPS, LINES, type SceneId, scene } from '../script';
 import { fonts, radii, shadow, theme } from '../theme';
 
 const DOCK_WIDTH = 1100;
@@ -18,10 +18,10 @@ const DOCK_TOP = 200;
 /** The content pictures sit centred in this band, above the captions. */
 const CONTENT_TOP = 340;
 const CONTENT_BOTTOM = 880;
-const CONTENT_MAX_WIDTH = 1240;
+const CONTENT_MAX_WIDTH = 1560;
 const CONTENT_MAX_HEIGHT = CONTENT_BOTTOM - CONTENT_TOP - 40;
 /** Display width per picture (its CSS width scaled), capped by the band. */
-const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.04, heat: 1.0, sowing: 0.96, money: 1.4, crops: 1.75, 'crops-table': 1.0, locations: 2.0 };
+const SHOT_SCALE: Readonly<Record<string, number>> = { water: 1.45, heat: 1.45, sowing: 0.96, money: 1.4, crops: 1.75, 'crops-table': 1.0, locations: 2.0 };
 const IN_FRAMES = 10;
 const OUT_FRAMES = 8;
 const DOCK_FADE = 6;
@@ -29,7 +29,7 @@ const PULSE_FRAMES = 18;
 /** The picture lands a hair before the word: the eye reads ahead of the ear. */
 const LEAD_FRAMES = 2;
 
-type Reveal = (typeof TEXT.inside.reveals)[number];
+export type Reveal = { readonly word: string; readonly tab: string | null; readonly shot: string };
 type Timed = Reveal & { readonly frame: number };
 
 function normalise(word: string): string {
@@ -37,16 +37,15 @@ function normalise(word: string): string {
 }
 
 /** Each reveal's frame inside the scene: the onset of its word, or evenly spread over the line without timings. */
-function revealFrames(assets: Assets): readonly Timed[] {
-  const start = scene('inside').from;
-  const line = LINES[INSIDE_LINE_INDEX];
-  const spoken = assets.words?.find((entry) => entry.line === INSIDE_LINE_INDEX)?.words ?? null;
-  const reveals = TEXT.inside.reveals;
+function revealFrames(assets: Assets, sceneId: SceneId, lineIndex: number, reveals: readonly Reveal[]): readonly Timed[] {
+  const start = scene(sceneId).from;
+  const line = LINES[lineIndex];
+  const spoken = assets.words?.find((entry) => entry.line === lineIndex)?.words ?? null;
   return reveals.map((reveal, index) => {
     const hit = spoken?.find((entry) => normalise(entry.word).startsWith(reveal.word));
     if (hit !== undefined) return { ...reveal, frame: Math.round(hit.at * FPS) - start - LEAD_FRAMES };
     const from = (line?.from ?? start) - start + 24;
-    const to = (line?.to ?? start + scene('inside').duration) - start - 30;
+    const to = (line?.to ?? start + scene(sceneId).duration) - start - 30;
     return { ...reveal, frame: Math.round(from + ((to - from) * index) / Math.max(1, reveals.length - 1)) };
   });
 }
@@ -80,29 +79,34 @@ const TabPulse: React.FC<{ readonly box: Box; readonly scale: number; readonly p
   );
 };
 
-const Fallback: React.FC = () => {
+const Fallback: React.FC<{ readonly reveals: readonly Reveal[] }> = ({ reveals }) => {
   const frame = useCurrentFrame();
-  const rows = [TEXT.inside.chips.slice(0, 4), TEXT.inside.chips.slice(4)];
   return (
-    <>
-      {rows.map((row, rowIndex) => (
-        <div key={rowIndex} style={{ position: 'absolute', left: 96, right: 96, top: 438 + rowIndex * 90, display: 'flex', justifyContent: 'center', gap: 24 }}>
-          {row.map((chip, column) => {
-            const rise = easeOut(fadeIn(frame, 3 + rowIndex * 4 + column, 8));
-            return <Pill key={chip} label={chip} size="xl" transform="none" dot={false} style={{ opacity: rise, transform: `translateY(${(1 - rise) * 18}px)` }} />;
-          })}
-        </div>
-      ))}
-    </>
+    <div style={{ position: 'absolute', left: 96, right: 96, top: 470, display: 'flex', justifyContent: 'center', gap: 24 }}>
+      {reveals.map((reveal, index) => {
+        const rise = easeOut(fadeIn(frame, 3 + index * 4, 8));
+        return <Pill key={reveal.word} label={reveal.word} size="xl" transform="none" dot={false} style={{ opacity: rise, transform: `translateY(${(1 - rise) * 18}px)` }} />;
+      })}
+    </div>
   );
 };
 
-export const SceneInside: React.FC<{ readonly assets: Assets }> = ({ assets }) => {
+/**
+ * The real tab bar of the field page under a title; as the voice names each part, the bar cross-fades to a screenshot
+ * with that tab really active and the real piece of the page slides in below (public/ui/).
+ */
+export const SceneInside: React.FC<{
+  readonly assets: Assets;
+  readonly sceneId: SceneId;
+  readonly lineIndex: number;
+  readonly title: string;
+  readonly reveals: readonly Reveal[];
+}> = ({ assets, sceneId, lineIndex, title, reveals }) => {
   const frame = useCurrentFrame();
   const sceneIn = fadeIn(frame, 0, 6);
   const titleIn = fadeIn(frame, 0, 10);
   const ui = assets.ui;
-  const timed = revealFrames(assets);
+  const timed = revealFrames(assets, sceneId, lineIndex, reveals);
 
   // The tab bar's states: Overview active at first, then each named tab from its word on.
   const dockStates: { readonly frame: number; readonly tab: string }[] = [{ frame: -999, tab: 'overview' }];
@@ -133,11 +137,11 @@ export const SceneInside: React.FC<{ readonly assets: Assets }> = ({ assets }) =
           transform: `translateY(${(1 - titleIn) * 10}px)`,
         }}
       >
-        <span style={{ color: theme.accent }}>{TEXT.inside.title.split(' ')[0]}</span> {TEXT.inside.title.split(' ').slice(1).join(' ')}
+        <span style={{ color: theme.accent }}>{title.split(' ').slice(0, 2).join(' ')}</span> {title.split(' ').slice(2).join(' ')}
       </div>
 
       {ui === null ? (
-        <Fallback />
+        <Fallback reveals={reveals} />
       ) : (
         <>
           {/* The real tab bar: the picture with the named tab active cross-fades over the previous one. */}
