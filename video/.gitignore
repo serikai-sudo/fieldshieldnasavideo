@@ -20,3 +20,4 @@ audio/work/
 audio/.venv/
 audio/.hf/
 audio/takes/
+__pycache__/
