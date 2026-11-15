@@ -6,23 +6,23 @@
    "words": [
     {
      "word": "I’m",
-     "at": 0.15
+     "at": 0.033
     },
     {
-     "word": "Ayaru,",
-     "at": 0.372
+     "word": "Ayaru",
+     "at": 0.154
     },
     {
      "word": "from",
-     "at": 1.037
+     "at": 0.714
     },
     {
      "word": "team",
-     "at": 1.239
+     "at": 0.923
     },
     {
      "word": "Algamura",
-     "at": 1.622
+     "at": 1.339
     }
    ]
   },
@@ -31,47 +31,47 @@
    "words": [
     {
      "word": "The",
-     "at": 2.456
+     "at": 2.067
     },
     {
-     "word": "problem:",
-     "at": 2.576
+     "word": "problem",
+     "at": 2.099
     },
     {
      "word": "in",
-     "at": 3.138
+     "at": 2.977
     },
     {
      "word": "2012",
-     "at": 3.239
+     "at": 3.111
     },
     {
      "word": "drought",
-     "at": 4.042
+     "at": 3.689
     },
     {
      "word": "cut",
-     "at": 4.483
+     "at": 3.945
     },
     {
      "word": "our",
-     "at": 4.684
+     "at": 4.335
     },
     {
      "word": "wheat",
-     "at": 4.804
+     "at": 4.478
     },
     {
      "word": "harvest",
-     "at": 5.025
+     "at": 4.623
     },
     {
      "word": "in",
-     "at": 5.386
+     "at": 5.269
     },
     {
-     "word": "half.",
-     "at": 5.527
+     "word": "half",
+     "at": 5.344
     }
    ]
   },
@@ -80,31 +80,31 @@
    "words": [
     {
      "word": "Yet",
-     "at": 6.16
+     "at": 6
     },
     {
      "word": "sowing",
-     "at": 6.462
+     "at": 6.17
     },
     {
      "word": "is",
-     "at": 6.925
+     "at": 6.563
     },
     {
      "word": "still",
-     "at": 7.066
+     "at": 6.653
     },
     {
      "word": "decided",
-     "at": 7.388
+     "at": 6.855
     },
     {
      "word": "almost",
-     "at": 8.073
+     "at": 7.435
     },
     {
-     "word": "blind.",
-     "at": 8.415
+     "word": "blind",
+     "at": 7.812
     }
    ]
   },
@@ -113,71 +113,71 @@
    "words": [
     {
      "word": "So",
-     "at": 9.097
+     "at": 8.4
     },
     {
      "word": "we",
-     "at": 9.459
+     "at": 8.552
     },
     {
      "word": "built",
-     "at": 9.62
+     "at": 8.674
     },
     {
      "word": "Field",
-     "at": 9.861
+     "at": 8.886
     },
     {
-     "word": "Shift:",
-     "at": 10.122
+     "word": "Shift",
+     "at": 9.175
     },
     {
      "word": "one",
-     "at": 10.544
+     "at": 10.045
     },
     {
      "word": "click",
-     "at": 10.704
+     "at": 10.234
     },
     {
      "word": "shows",
-     "at": 11.026
+     "at": 10.413
     },
     {
      "word": "water",
-     "at": 11.347
+     "at": 10.702
     },
     {
      "word": "and",
-     "at": 11.729
+     "at": 11.148
     },
     {
      "word": "heat",
-     "at": 11.85
+     "at": 11.237
     },
     {
-     "word": "risk,",
-     "at": 12.03
+     "word": "risk",
+     "at": 11.505
     },
     {
      "word": "and",
-     "at": 12.392
+     "at": 11.939
     },
     {
      "word": "how",
-     "at": 12.512
+     "at": 12.051
     },
     {
      "word": "sure",
-     "at": 12.693
+     "at": 12.229
     },
     {
      "word": "it",
-     "at": 12.874
+     "at": 12.508
     },
     {
-     "word": "is.",
-     "at": 13.015
+     "word": "is",
+     "at": 12.574
     }
    ]
   },
@@ -185,36 +185,36 @@
    "line": 4,
    "words": [
     {
-     "word": "Then,",
-     "at": 13.51
+     "word": "Then",
+     "at": 13.067
     },
     {
      "word": "for",
-     "at": 13.831
+     "at": 13.576
     },
     {
      "word": "eight",
-     "at": 14.092
+     "at": 13.835
     },
     {
-     "word": "crops:",
-     "at": 14.333
+     "word": "crops",
+     "at": 14.005
     },
     {
      "word": "the",
-     "at": 14.936
+     "at": 14.613
     },
     {
      "word": "safest",
-     "at": 15.096
+     "at": 14.666
     },
     {
      "word": "sowing",
-     "at": 15.679
+     "at": 15.458
     },
     {
-     "word": "date.",
-     "at": 16.02
+     "word": "date",
+     "at": 15.765
     }
    ]
   },
@@ -223,31 +223,31 @@
    "words": [
     {
      "word": "The",
-     "at": 16.528
+     "at": 16.267
     },
     {
      "word": "calculator",
-     "at": 16.648
+     "at": 16.333
     },
     {
      "word": "prices",
-     "at": 17.271
+     "at": 16.859
     },
     {
      "word": "late",
-     "at": 17.813
+     "at": 17.52
     },
     {
-     "word": "sowing,",
-     "at": 18.114
+     "word": "sowing",
+     "at": 17.789
     },
     {
      "word": "in",
-     "at": 18.656
+     "at": 18.373
     },
     {
-     "word": "tenge.",
-     "at": 18.797
+     "word": "tenge",
+     "at": 18.484
     }
    ]
   },
@@ -256,59 +256,59 @@
    "words": [
     {
      "word": "Does",
-     "at": 19.622
+     "at": 19.233
     },
     {
      "word": "it",
-     "at": 19.802
+     "at": 19.354
     },
     {
-     "word": "work?",
-     "at": 19.883
+     "word": "work",
+     "at": 19.454
     },
     {
      "word": "In",
-     "at": 20.223
+     "at": 20.222
     },
     {
      "word": "2012",
-     "at": 20.323
+     "at": 20.367
     },
     {
      "word": "it",
-     "at": 20.944
+     "at": 20.946
     },
     {
      "word": "warned",
-     "at": 21.024
+     "at": 21.023
     },
     {
      "word": "55 days",
-     "at": 21.384
+     "at": 21.557
     },
     {
      "word": "before",
-     "at": 22.265
+     "at": 22.527
     },
     {
-     "word": "harvest,",
-     "at": 22.586
+     "word": "harvest",
+     "at": 22.901
     },
     {
      "word": "and",
-     "at": 23.146
+     "at": 23.521
     },
     {
      "word": "holds",
-     "at": 23.266
+     "at": 23.677
     },
     {
      "word": "over",
-     "at": 23.567
+     "at": 24.066
     },
     {
      "word": "33 years",
-     "at": 23.827
+     "at": 24.267
     }
    ]
   },
@@ -317,47 +317,47 @@
    "words": [
     {
      "word": "For",
-     "at": 25.168
+     "at": 25.621
     },
     {
      "word": "now",
-     "at": 25.349
+     "at": 25.818
     },
     {
      "word": "Northern",
-     "at": 25.71
+     "at": 26.115
     },
     {
-     "word": "Kazakhstan,",
-     "at": 26.072
+     "word": "Kazakhstan",
+     "at": 26.51
     },
     {
-     "word": "next:",
-     "at": 26.795
+     "word": "next",
+     "at": 27.124
     },
     {
      "word": "every",
-     "at": 27.257
+     "at": 27.531
     },
     {
      "word": "rainfed",
-     "at": 27.619
+     "at": 27.783
     },
     {
      "word": "grain",
-     "at": 28.222
+     "at": 28.336
     },
     {
      "word": "belt",
-     "at": 28.523
+     "at": 28.739
     },
     {
      "word": "on",
-     "at": 28.945
+     "at": 28.969
     },
     {
-     "word": "Earth.",
-     "at": 29.126
+     "word": "Earth",
+     "at": 29.131
     }
    ]
   }

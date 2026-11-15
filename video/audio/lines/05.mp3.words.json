@@ -1,42 +1,42 @@
 [
  {
-  "word": "Then,",
-  "start": 0.181,
-  "end": 0.341
+  "word": "Then",
+  "start": 0,
+  "end": 0.396
  },
  {
   "word": "for",
-  "start": 0.502,
-  "end": 0.603
+  "start": 0.539,
+  "end": 0.741
  },
  {
   "word": "eight",
-  "start": 0.763,
-  "end": 0.924
+  "start": 0.813,
+  "end": 0.98
  },
  {
-  "word": "crops:",
-  "start": 1.004,
-  "end": 1.346
+  "word": "crops",
+  "start": 0.992,
+  "end": 1.503
  },
  {
   "word": "the",
-  "start": 1.607,
-  "end": 1.687
+  "start": 1.635,
+  "end": 1.679
  },
  {
   "word": "safest",
-  "start": 1.767,
-  "end": 2.189
+  "start": 1.692,
+  "end": 2.417
  },
  {
   "word": "sowing",
-  "start": 2.35,
-  "end": 2.651
+  "start": 2.529,
+  "end": 2.842
  },
  {
-  "word": "date.",
-  "start": 2.691,
-  "end": 2.912
+  "word": "date",
+  "start": 2.854,
+  "end": 3.254
  }
 ]

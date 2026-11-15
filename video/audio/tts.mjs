@@ -67,10 +67,12 @@ function speak(text, tone, out) {
 mkdirSync(LINES_DIR, { recursive: true });
 rmSync(WORK, { recursive: true, force: true });
 mkdirSync(WORK, { recursive: true });
-for (const name of readdirSync(LINES_DIR)) rmSync(join(LINES_DIR, name));
+/** TTS_ONLY=0,3 re-speaks just those lines (0-based) and keeps the other takes. */
+const only = (process.env.TTS_ONLY ?? '').split(',').filter(Boolean).map(Number);
+if (only.length === 0) for (const name of readdirSync(LINES_DIR)) rmSync(join(LINES_DIR, name));
 
 LINES.forEach((line, index) => {
-  if (line.spoken === false) return;
+  if (line.spoken === false || (only.length > 0 && !only.includes(index))) return;
   const id = String(index + 1).padStart(2, '0');
   const segments = segmentsOf(line.text);
   const base = { ...PLAIN, pitch: LINE_TONE[index] ?? PLAIN.pitch };
@@ -93,9 +95,21 @@ LINES.forEach((line, index) => {
       '-ac', '1', '-ar', '44100', trimmed,
     ]);
     if (k > 0) offset += BEAT_SECONDS;
-    for (const word of JSON.parse(readFileSync(`${raw}.words.json`, 'utf8'))) {
-      const written = Object.entries(SAY).find(([, said]) => word.word.toLowerCase().startsWith(said.split('-')[0]))?.[0];
-      words.push({ word: written ?? word.word, start: Number((offset + Math.max(0, word.start - removed)).toFixed(3)), end: Number((offset + Math.max(0, word.end - removed)).toFixed(3)) });
+    const spokenWords = JSON.parse(readFileSync(`${raw}.words.json`, 'utf8')).map((word) => ({ word: word.word, start: Number((offset + Math.max(0, word.start - removed)).toFixed(3)), end: Number((offset + Math.max(0, word.end - removed)).toFixed(3)) }));
+    // A written token said as several words ("Alga Mura") folds back into one entry under its written form.
+    for (let i = 0; i < spokenWords.length; i += 1) {
+      const hit = Object.entries(SAY).find(([, said]) => {
+        const parts = said.split(/[\s-]+/);
+        return parts.every((part, k) => spokenWords[i + k]?.word.toLowerCase().replace(/[^a-z0-9]/g, '') === part.toLowerCase());
+      });
+      if (hit === undefined) {
+        const single = Object.entries(SAY).find(([, said]) => spokenWords[i].word.toLowerCase().startsWith(said.split(/[\s-]+/)[0].toLowerCase()))?.[0];
+        words.push({ ...spokenWords[i], word: single ?? spokenWords[i].word });
+        continue;
+      }
+      const count = hit[1].split(/[\s-]+/).length;
+      words.push({ word: hit[0], start: spokenWords[i].start, end: spokenWords[i + count - 1].end });
+      i += count - 1;
     }
     parts.push(trimmed);
     offset += seconds(trimmed);

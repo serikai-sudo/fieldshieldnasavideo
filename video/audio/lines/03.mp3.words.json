@@ -1,37 +1,37 @@
 [
  {
   "word": "Yet",
-  "start": 0.221,
-  "end": 0.382
+  "start": 0,
+  "end": 0.168
  },
  {
   "word": "sowing",
-  "start": 0.523,
-  "end": 0.845
+  "start": 0.18,
+  "end": 0.585
  },
  {
   "word": "is",
-  "start": 0.986,
-  "end": 1.027
+  "start": 0.597,
+  "end": 0.692
  },
  {
   "word": "still",
-  "start": 1.127,
-  "end": 1.389
+  "start": 0.692,
+  "end": 0.906
  },
  {
   "word": "decided",
-  "start": 1.449,
-  "end": 1.892
+  "start": 0.906,
+  "end": 1.43
  },
  {
   "word": "almost",
-  "start": 2.134,
-  "end": 2.416
+  "start": 1.521,
+  "end": 1.92
  },
  {
-  "word": "blind.",
-  "start": 2.476,
-  "end": 2.778
+  "word": "blind",
+  "start": 1.92,
+  "end": 2.42
  }
 ]

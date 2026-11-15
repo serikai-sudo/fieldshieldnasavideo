@@ -66,9 +66,8 @@ export const Scene02Problem: React.FC<{ readonly assets: Assets }> = ({ assets }
   const droughtNumberIn = fadeIn(frame, HIT, 6);
   const chipIn = fadeIn(frame, HIT + 8, 8);
   // The drop, measured: a dashed guide at the 2011 height over the 2012 bar, then an arrow down to its top.
-  // "in half" is the last thing said in the scene, so the drop draws fast: the guide with the hit, the arrow right after.
-  const guide = easeOut(clamp01((frame - HIT + 2) / 6));
-  const arrow = easeOut(clamp01((frame - HIT - 1) / 6));
+  const guide = easeOut(clamp01((frame - HIT - 2) / 8));
+  const arrow = easeOut(clamp01((frame - HIT - 6) / 9));
   // The hit: as the 2012 bar lands, a brick-red flash and a short shake (edit-style emphasis).
   const flash = frame >= HIT && frame < HIT + 6 ? 0.16 * (1 - (frame - HIT) / 6) : 0;
   const shakeT = frame - HIT;

@@ -1,57 +1,57 @@
 [
  {
   "word": "For",
-  "start": 0.241,
-  "end": 0.342
+  "start": 0.059,
+  "end": 0.261
  },
  {
   "word": "now",
-  "start": 0.422,
-  "end": 0.603
+  "start": 0.273,
+  "end": 0.583
  },
  {
   "word": "Northern",
-  "start": 0.783,
-  "end": 1.085
+  "start": 0.595,
+  "end": 1.012
  },
  {
-  "word": "Kazakhstan,",
-  "start": 1.145,
-  "end": 1.708
+  "word": "Kazakhstan",
+  "start": 1.023,
+  "end": 1.678
  },
  {
-  "word": "next:",
-  "start": 1.868,
-  "end": 2.17
+  "word": "next",
+  "start": 1.69,
+  "end": 2.095
  },
  {
   "word": "every",
-  "start": 2.33,
-  "end": 2.551
+  "start": 2.131,
+  "end": 2.392
  },
  {
   "word": "rainfed",
-  "start": 2.692,
-  "end": 3.214
+  "start": 2.405,
+  "end": 2.992
  },
  {
   "word": "grain",
-  "start": 3.295,
-  "end": 3.516
+  "start": 3.005,
+  "end": 3.43
  },
  {
   "word": "belt",
-  "start": 3.596,
-  "end": 3.797
+  "start": 3.442,
+  "end": 3.68
  },
  {
   "word": "on",
-  "start": 4.018,
-  "end": 4.058
+  "start": 3.692,
+  "end": 3.867
  },
  {
-  "word": "Earth.",
-  "start": 4.199,
-  "end": 4.46
+  "word": "Earth",
+  "start": 3.867,
+  "end": 4.28
  }
 ]
