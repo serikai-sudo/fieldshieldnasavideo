@@ -35,16 +35,16 @@ export type SceneSpec = {
  * line cuts from the map to the tabs on "water", the proof line from the replay to the back-test on "and holds".
  */
 export const SCENES: readonly SceneSpec[] = [
-  { id: 'intro', from: 0, duration: 61 },
-  { id: 'problem', from: 61, duration: 118 },
-  { id: 'blind', from: 179, duration: 72 },
-  { id: 'click', from: 251, duration: 84 },
-  { id: 'facets', from: 335, duration: 56 },
-  { id: 'sowing', from: 391, duration: 96 },
-  { id: 'money', from: 487, duration: 89 },
-  { id: 'proof', from: 576, duration: 127 },
-  { id: 'backtest', from: 703, duration: 63 },
-  { id: 'close', from: 766, duration: 119 },
+  { id: 'intro', from: 0, duration: 70 },
+  { id: 'problem', from: 70, duration: 112 },
+  { id: 'blind', from: 182, duration: 86 },
+  { id: 'click', from: 268, duration: 69 },
+  { id: 'facets', from: 337, duration: 65 },
+  { id: 'sowing', from: 402, duration: 91 },
+  { id: 'money', from: 493, duration: 93 },
+  { id: 'proof', from: 586, duration: 105 },
+  { id: 'backtest', from: 691, duration: 61 },
+  { id: 'close', from: 752, duration: 133 },
 ];
 
 export function scene(id: SceneId): SceneSpec {
@@ -145,7 +145,7 @@ export type Tag = { readonly line: number; readonly word: string; readonly label
 /* ------------------------------------------------------------------------------------------------ on-screen text */
 
 export const TEXT = {
-  intro: { hi: 'Hi, I’m', name: 'Ayaru', team: 'team Innovator' },
+  intro: { hi: 'I’m', name: 'Ayaru', team: 'team Algamura' },
   problem: {
     label: '2012 drought — national wheat yield fell by about half',
     /** The part of the label set in the accent colour. */
@@ -214,7 +214,7 @@ export const TEXT = {
 } as const;
 
 /** Words set in the accent colour wherever a caption shows them, besides the `*…*` phrases of the lines. */
-export const CAPTION_HIGHLIGHTS: readonly string[] = ['Ayaru', 'team Innovator', '2012', 'May 28'];
+export const CAPTION_HIGHLIGHTS: readonly string[] = ['Ayaru', 'team Algamura', '2012', 'May 28'];
 
 /* ------------------------------------------------------------------------------------------ voice-over + captions */
 
@@ -245,14 +245,14 @@ export type Line = {
  * public/voiceover.mp3 and writes public/words.json (every word's onset), which every reveal follows.
  */
 export const LINES: readonly Line[] = [
-  { from: 1, to: 61, text: 'I’m Ayaru, from team Innovator.' },
-  { from: 62, to: 179, text: 'The problem: in 2012 drought cut our wheat harvest *in half*.' },
-  { from: 180, to: 251, text: 'Yet sowing is still decided *almost blind*.' },
-  { from: 252, to: 391, text: 'So we built Field Shift: one click shows water and heat risk, and how sure it is.' },
-  { from: 392, to: 487, text: 'Then, for eight crops: *the safest sowing date*.' },
-  { from: 488, to: 576, text: 'The calculator prices late sowing, *in tenge*.' },
-  { from: 577, to: 766, text: 'Does it work? In 2012 it warned *55 days before harvest*, and holds over 33 years.' },
-  { from: 767, to: 885, text: 'For now Northern Kazakhstan, next: *every rainfed grain belt on Earth*.', caption: false },
+  { from: 1, to: 70, text: 'I’m Ayaru, from team Algamura.' },
+  { from: 71, to: 182, text: 'The problem: in 2012 drought cut our wheat harvest *in half*.' },
+  { from: 183, to: 268, text: 'Yet sowing is still decided *almost blind*.' },
+  { from: 269, to: 402, text: 'So we built Field Shift: one click shows water and heat risk, and how sure it is.' },
+  { from: 403, to: 493, text: 'Then, for eight crops: *the safest sowing date*.' },
+  { from: 494, to: 586, text: 'The calculator prices late sowing, *in tenge*.' },
+  { from: 587, to: 752, text: 'Does it work? In 2012 it warned *55 days before harvest*, and holds over 33 years.' },
+  { from: 753, to: 885, text: 'For now Northern Kazakhstan, next: *every rainfed grain belt on Earth*.', caption: false },
 ];
 
 export const INTRO_LINE_INDEX = 0;
@@ -284,8 +284,11 @@ export function segmentsOf(text: string): readonly Segment[] {
   return segments;
 }
 
-/** How the voice should say a written token, where its default reading is slow or wrong ("2012" as "twenty-twelve"). */
-export const SAY: Readonly<Record<string, string>> = { '2012': 'twenty-twelve' };
+/**
+ * How the voice should say a written token, where its default reading is slow or wrong: years as years, numbers as
+ * words the aligner knows, and the team's name as it is said in Kazakh ("Алға мура": al-GHA mu-RA).
+ */
+export const SAY: Readonly<Record<string, string>> = { '2012': 'twenty twelve', '55 days': 'fifty-five days', '33 years': 'thirty-three years', 'Algamura': 'Alga Mura' };
 
 /** A line as it reads on screen: the marks removed. */
 export function plainText(text: string): string {

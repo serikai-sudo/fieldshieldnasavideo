@@ -1,72 +1,72 @@
 [
  {
   "word": "Does",
-  "start": 0,
-  "end": 0.117
+  "start": 0.22,
+  "end": 0.34
  },
  {
   "word": "it",
-  "start": 0.129,
-  "end": 0.224
+  "start": 0.4,
+  "end": 0.441
  },
  {
-  "word": "work",
-  "start": 0.236,
-  "end": 0.701
+  "word": "work?",
+  "start": 0.481,
+  "end": 0.641
  },
  {
   "word": "In",
-  "start": 1.058,
-  "end": 1.201
+  "start": 0.821,
+  "end": 0.861
  },
  {
   "word": "2012",
-  "start": 1.213,
-  "end": 1.82
+  "start": 0.921,
+  "end": 1.462
  },
  {
   "word": "it",
-  "start": 1.832,
-  "end": 1.915
+  "start": 1.542,
+  "end": 1.582
  },
  {
   "word": "warned",
-  "start": 1.915,
-  "end": 2.332
+  "start": 1.622,
+  "end": 1.922
  },
  {
   "word": "55 days",
-  "start": 2.486,
-  "end": 3.523
+  "start": 1.982,
+  "end": 2.783
  },
  {
   "word": "before",
-  "start": 3.523,
-  "end": 3.91
+  "start": 2.863,
+  "end": 3.124
  },
  {
-  "word": "harvest",
-  "start": 3.923,
-  "end": 4.511
+  "word": "harvest,",
+  "start": 3.184,
+  "end": 3.584
  },
  {
   "word": "and",
-  "start": 4.587,
-  "end": 4.694
+  "start": 3.744,
+  "end": 3.824
  },
  {
   "word": "holds",
-  "start": 4.754,
-  "end": 5.158
+  "start": 3.864,
+  "end": 4.065
  },
  {
   "word": "over",
-  "start": 5.17,
-  "end": 5.373
+  "start": 4.165,
+  "end": 4.305
  },
  {
   "word": "33 years",
-  "start": 5.385,
-  "end": 6.611
+  "start": 4.425,
+  "end": 5.286
  }
 ]

@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "voiceover": "node --experimental-strip-types audio/build-voiceover.mjs",
     "shots": "node capture/ui-shots.mjs",
-    "voiceover:tts": "node --experimental-strip-types audio/tts.mjs"
+    "voiceover:tts": "node --experimental-strip-types audio/tts-chatterbox.mjs",
+    "voiceover:tts:edge": "node --experimental-strip-types audio/tts.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.543",

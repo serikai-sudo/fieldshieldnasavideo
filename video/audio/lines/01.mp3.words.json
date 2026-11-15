@@ -1,27 +1,27 @@
 [
  {
   "word": "I’m",
-  "start": 0,
-  "end": 0.116
+  "start": 0.302,
+  "end": 0.383
  },
  {
-  "word": "Ayaru",
-  "start": 0.211,
-  "end": 0.592
+  "word": "Ayaru,",
+  "start": 0.524,
+  "end": 0.907
  },
  {
   "word": "from",
-  "start": 0.819,
-  "end": 1.021
+  "start": 1.189,
+  "end": 1.31
  },
  {
   "word": "team",
-  "start": 1.033,
-  "end": 1.331
+  "start": 1.391,
+  "end": 1.593
  },
  {
-  "word": "Innovator",
-  "start": 1.45,
-  "end": 1.997
+  "word": "Algamura",
+  "start": 1.774,
+  "end": 2.359
  }
 ]

@@ -1,6 +1,6 @@
 /**
- * 0–2.7 s: "Hi, I'm Ayaru, from team Innovator." The name rises in brick red as it is spoken and a red rule swipes
- * under it; "team Innovator" lands on its word; the Field Shift mark settles above. Word onsets from public/words.json.
+ * "I'm Ayaru, from team Algamura." The name rises in brick red as it is spoken and a red rule swipes
+ * under it; "team Algamura" lands on its word; the Field Shift mark settles above. Word onsets from public/words.json.
  */
 import type React from 'react';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';

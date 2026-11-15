@@ -1,57 +1,57 @@
 [
  {
   "word": "The",
-  "start": 0,
-  "end": 0.023
+  "start": 0.261,
+  "end": 0.321
  },
  {
-  "word": "problem",
-  "start": 0.035,
-  "end": 0.463
+  "word": "problem:",
+  "start": 0.381,
+  "end": 0.763
  },
  {
   "word": "in",
-  "start": 0.975,
-  "end": 1.106
+  "start": 0.943,
+  "end": 0.984
  },
  {
   "word": "2012",
-  "start": 1.118,
-  "end": 1.737
+  "start": 1.044,
+  "end": 1.786
  },
  {
   "word": "drought",
-  "start": 1.737,
-  "end": 1.999
+  "start": 1.847,
+  "end": 2.128
  },
  {
   "word": "cut",
-  "start": 2.011,
-  "end": 2.332
+  "start": 2.288,
+  "end": 2.429
  },
  {
   "word": "our",
-  "start": 2.428,
-  "end": 2.571
+  "start": 2.489,
+  "end": 2.569
  },
  {
   "word": "wheat",
-  "start": 2.582,
-  "end": 2.737
+  "start": 2.609,
+  "end": 2.77
  },
  {
   "word": "harvest",
-  "start": 2.737,
-  "end": 3.333
+  "start": 2.83,
+  "end": 3.131
  },
  {
   "word": "in",
-  "start": 3.428,
-  "end": 3.497
+  "start": 3.191,
+  "end": 3.232
  },
  {
-  "word": "half",
-  "start": 3.509,
-  "end": 4.071
+  "word": "half.",
+  "start": 3.332,
+  "end": 3.533
  }
 ]
